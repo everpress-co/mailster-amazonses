@@ -251,11 +251,11 @@ class MailsterAmazonSES {
 
 			$start = microtime( true );
 			$response = wp_remote_post( 'https://' . MAILSTER_AMAZONSES_ENDPOINT, array(
-					'compress' => true,
-					'headers' => $this->get_header(),
-					'timeout' => 10,
-					'sslverify' => true,
-					'body' => $body,
+				'compress' => true,
+				'headers' => $this->get_header(),
+				'timeout' => 10,
+				'sslverify' => true,
+				'body' => $body,
 			) );
 
 			$code = wp_remote_retrieve_response_code( $response );
