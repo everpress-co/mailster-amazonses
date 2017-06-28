@@ -10,7 +10,7 @@ Author URI: https://mailster.co
 
 == Description ==
 
-Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](http://rxa.li/mailster?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster).
+Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster).
 
 == Installation ==
 
@@ -29,4 +29,4 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 
 == Additional Info One ==
 
-> This Plugin requires [Mailster Newsletter Plugin for WordPress](http://rxa.li/mailster?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster)
+> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster)

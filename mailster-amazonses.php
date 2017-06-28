@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Mailster AmazonSES Integration
-Plugin URI: http://rxa.li/mailster?utm_campaign=wporg&utm_source=Mailster+AmazonSES+integration
+Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=Mailster+AmazonSES+integration
 Description: Uses Amazon's Simple Email Service (SES) to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.2 of the plugin
 Version: 1.0
@@ -711,7 +711,7 @@ class MailsterAmazonSES {
 ?>
 	<div class="error">
 		<p>
-		<strong>AmazonSES integration for Mailster</strong> requires the <a href="http://rxa.li/mailster?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION ?></strong>. Plugin deactivated.
+		<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION ?></strong>. Plugin deactivated.
 		</p>
 	</div>
 		<?php
