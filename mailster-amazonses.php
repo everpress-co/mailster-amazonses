@@ -4,7 +4,7 @@ Plugin Name: Mailster AmazonSES Integration
 Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=Mailster+AmazonSES+integration
 Description: Uses Amazon's Simple Email Service (SES) to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.2 of the plugin
-Version: 1.0
+Version: 1.1
 Author: EverPress
 Author URI: https://mailster.co
 Text Domain: mailster-amazonses
@@ -12,7 +12,7 @@ License: GPLv2 or later
 */
 
 
-define( 'MAILSTER_AMAZONSES_VERSION', '1.0' );
+define( 'MAILSTER_AMAZONSES_VERSION', '1.1' );
 define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '2.2' );
 
 class MailsterAmazonSES {
@@ -350,6 +350,7 @@ class MailsterAmazonSES {
 	 */
 	public function subscriber_errors( $errors ) {
 		$errors[] = 'Address blacklisted';
+		$errors[] = 'Invalid domain name';
 		if ( ( $key = array_search( 'SMTP Error: Data not accepted', $errors ) ) !== false ) {
 			unset( $errors[ $key ] );
 		}
@@ -377,11 +378,22 @@ class MailsterAmazonSES {
 		if ( is_array( $mailobject->to ) ) {
 			$mcnt = 1;
 			foreach ( $mailobject->to as $recipient ) {
-				$query[ "Destinations.member.{$mcnt}" ] = $recipient;
+				$query[ "ToAddresses.member.{$mcnt}" ] = $recipient;
 				$mcnt++;
 			}
 		} else {
-			$query['Destinations.member.1'] = $mailobject->to;
+			$query['ToAddresses.member.1'] = $mailobject->to;
+		}
+		if ( $mailobject->bcc ) {
+			if ( is_array( $mailobject->bcc ) ) {
+				$mcnt = 1;
+				foreach ( $mailobject->bcc as $recipient ) {
+					$query[ "BccAddresses.member.{$mcnt}" ] = $recipient;
+					$mcnt++;
+				}
+			} else {
+				$query['BccAddresses.member.1'] = $mailobject->bcc;
+			}
 		}
 
 		$query['Action'] = 'SendRawEmail';
