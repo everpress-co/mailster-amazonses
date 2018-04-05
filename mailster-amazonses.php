@@ -4,7 +4,7 @@ Plugin Name: Mailster AmazonSES Integration
 Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=Mailster+AmazonSES+integration
 Description: Uses Amazon's Simple Email Service (SES) to deliver emails for the Mailster Newsletter Plugin for WordPress.
 This requires at least version 2.2 of the plugin
-Version: 1.1.1
+Version: 1.1.2
 Author: EverPress
 Author URI: https://mailster.co
 Text Domain: mailster-amazonses
@@ -12,7 +12,7 @@ License: GPLv2 or later
 */
 
 
-define( 'MAILSTER_AMAZONSES_VERSION', '1.1.1' );
+define( 'MAILSTER_AMAZONSES_VERSION', '1.1.2' );
 define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '2.2' );
 
 class MailsterAmazonSES {
@@ -236,9 +236,8 @@ class MailsterAmazonSES {
 	 * @access public
 	 * @return void
 	 * @param mixed $mailobject
-	 * @param int   $try
 	 */
-	public function dosend( $mailobject, $try = 1 ) {
+	public function dosend( $mailobject ) {
 
 		if ( mailster_option( 'amazonses_smtp' ) ) {
 
@@ -253,7 +252,7 @@ class MailsterAmazonSES {
 			$response = wp_remote_post( 'https://' . MAILSTER_AMAZONSES_ENDPOINT, array(
 				'compress' => true,
 				'headers' => $this->get_header(),
-				'timeout' => 20,
+				'timeout' => 30,
 				'sslverify' => true,
 				'body' => $body,
 			) );
@@ -262,11 +261,6 @@ class MailsterAmazonSES {
 
 			if ( is_wp_error( $response ) ) {
 
-				// try it three times if connection timeout (after 10 seconds)
-				if ( $response->get_error_code() === 'http_request_failed' && $try <= 3 ) {
-					$this->dosend( $mailobject, ++$try );
-					return;
-				}
 				$mailobject->set_error( $response->get_error_message() );
 				$mailobject->sent = false;
 
