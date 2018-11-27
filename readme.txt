@@ -20,7 +20,14 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 4. Enter your credentials
 5. Send a testmail
 
+== Screenshots ==
+
+1. Option Interface.
+
 == Changelog ==
+
+= 2.0 =
+* New: Handle Bounces via [AmazonSNS](https://kb.mailster.co/handling-bounces-with-amazonsns/)
 
 = 1.2 =
 * improved resource handling if method is not enabled
