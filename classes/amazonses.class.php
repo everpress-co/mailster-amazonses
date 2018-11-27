@@ -43,6 +43,11 @@ class MailsterAmazonSES {
 
 			add_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
 
+			$endpoint = mailster_option( 'amazonses_endpoint' );
+
+			define( 'MAILSTER_AMAZONSES_ENDPOINT', 'email.' . $endpoint . '.amazonaws.com' );
+			define( 'MAILSTER_AMAZONSES_SMTP_ENDPOINT', 'email-smtp.' . $endpoint . '.amazonaws.com' );
+
 			if ( mailster_option( 'deliverymethod' ) == 'amazonses' ) {
 
 				add_action( 'mailster_initsend', array( $this, 'initsend' ) );
@@ -50,16 +55,15 @@ class MailsterAmazonSES {
 				add_action( 'mailster_dosend', array( $this, 'dosend' ) );
 				add_filter( 'mailster_subscriber_errors', array( $this, 'subscriber_errors' ) );
 
-				$endpoint = mailster_option( 'amazonses_endpoint' );
-
-				define( 'MAILSTER_AMAZONSES_ENDPOINT', 'email.' . $endpoint . '.amazonaws.com' );
-				define( 'MAILSTER_AMAZONSES_SMTP_ENDPOINT', 'email-smtp.' . $endpoint . '.amazonaws.com' );
-
 				if ( is_admin() && isset( $_GET['mailster_amazonses_verifyemail'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'verify_email' ) ) {
 					$this->verify_email( esc_attr( $_GET['mailster_amazonses_verifyemail'] ) );
 
 					wp_redirect( remove_query_arg( array( 'mailster_amazonses_verifyemail', '_wpnonce' ) ) );
 					exit;
+				}
+
+				if ( isset( $_GET['mailster_amazonsns'] ) ) {
+					$this->handle_sns();
 				}
 			}
 
@@ -109,21 +113,19 @@ class MailsterAmazonSES {
 	 * returns the required headers as array
 	 *
 	 * @access private
-	 * @param string $key    (optional) (default: '')
-	 * @param string $secret (optional) (default: '')
 	 * @return void
 	 */
-	private function get_header( $key = '', $secret = '' ) {
+	private function get_header() {
 
-		if ( ! $key ) { $key = mailster_option( 'amazonses_access_key' ); }
-		if ( ! $secret ) { $secret = mailster_option( 'amazonses_secret_key' ); }
+		$key = mailster_option( 'amazonses_access_key' );
+		$secret = mailster_option( 'amazonses_secret_key' );
 
 		$date_value = date( DATE_RFC2822 );
 
 		$signature = base64_encode( hash_hmac( 'sha1', $date_value, $secret, true ) );
 
 		return array(
-			'Content-Type' => 'application/x-www-form-urlencoded',
+			//'Content-Type' => 'application/x-www-form-urlencoded',
 			'Date' => $date_value,
 			'X-Amzn-Authorization' => 'AWS3-HTTPS AWSAccessKeyId=' . $key . ',Algorithm=HmacSHA1,Signature=' . $signature,
 		);
@@ -182,25 +184,11 @@ class MailsterAmazonSES {
 			$body = $this->generate_body( $mailobject );
 
 			$start = microtime( true );
-			$response = wp_remote_post( 'https://' . MAILSTER_AMAZONSES_ENDPOINT, array(
-				'compress' => true,
-				'headers' => $this->get_header(),
-				'timeout' => 30,
-				'sslverify' => true,
-				'body' => $body,
-			) );
-
-			$code = wp_remote_retrieve_response_code( $response );
+			$response = $this->do_post( 'SendRawEmail', $body, 30 );
 
 			if ( is_wp_error( $response ) ) {
 
 				$mailobject->set_error( $response->get_error_message() );
-				$mailobject->sent = false;
-
-			} elseif ( $code != 200 ) {
-
-				$response = simplexml_load_string( wp_remote_retrieve_body( $response ) );
-				$mailobject->set_error( $response->Error->Message );
 				$mailobject->sent = false;
 
 			} else {
@@ -225,47 +213,95 @@ class MailsterAmazonSES {
 	 */
 	public function getquota( $save = true, $key = '', $secret = '' ) {
 
-		$response = ( wp_remote_post( 'https://email.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com', array(
-			'headers' => $this->get_header( $key, $secret ),
-			'timeout' => 20,
-			'sslverify' => true,
-			'body' => array(
-				'Action' => 'GetSendQuota',
-			),
-		) ) );
-
-		$code = wp_remote_retrieve_response_code( $response );
-		$headers = wp_remote_retrieve_headers( $response );
+		$response = $this->do_get( 'GetSendQuota' );
 
 		if ( is_wp_error( $response ) ) {
-
 			return $response;
-
 		}
 
-		$response = simplexml_load_string( wp_remote_retrieve_body( $response ) );
+		$limits = array(
+			'sent' => intval( $response->GetSendQuotaResult->SentLast24Hours ),
+			'limit' => intval( $response->GetSendQuotaResult->Max24HourSend ),
+			'rate' => ceil( ( 1000 / intval( $response->GetSendQuotaResult->MaxSendRate ) * 0.1 ) ),
+		);
 
-		if ( $code != 200 ) {
+		$limits['sent'] = min( $limits['sent'], $limits['limit'] );
 
-			return new WP_Error( $code, '[' . $response->Error->Code . '] ' . $response->Error->Message );
-
-		} else {
-			$limits = array(
-				'sent' => intval( $response->GetSendQuotaResult->SentLast24Hours ),
-				'limit' => intval( $response->GetSendQuotaResult->Max24HourSend ),
-				'rate' => ceil( ( 1000 / intval( $response->GetSendQuotaResult->MaxSendRate ) * 0.1 ) ),
-			);
-
-			$limits['sent'] = min( $limits['sent'], $limits['limit'] );
+		if ( $save ) {
+			$this->update_limits( $limits );
 		}
-
-		if ( $save ) { $this->update_limits( $limits ); }
 
 		return $limits;
 
 	}
 
+	public function do_get( $action, $args = array(), $timeout = 15 ) {
+		return $this->do_call( 'GET', $action, $args, $timeout );
+	}
+	public function do_post( $action, $args = array(), $timeout = 15 ) {
+		return $this->do_call( 'POST', $action, $args, $timeout );
+	}
 
+
+	/**
+	 *
+	 * @access public
+	 * @param unknown $apikey  (optional)
+	 * @return void
+	 */
+	private function do_call( $method, $action, $args = array(), $timeout = 15 ) {
+
+		if ( ! defined( 'MAILSTER_AMAZONSES_ENDPOINT' ) ) {
+			return new WP_Error( 'method_not_allowed', 'This method is not allowed' );
+		}
+
+		$url = 'https://' . MAILSTER_AMAZONSES_ENDPOINT;
+
+		$headers = $this->get_header();
+
+		$args = wp_parse_args( $args, array(
+			'Action' => $action,
+		) );
+
+		$body = null;
+
+		if ( 'GET' == $method ) {
+			$url = add_query_arg( $args, $url );
+		} elseif ( 'POST' == $method ) {
+			$body = $args;
+		} else {
+			return new WP_Error( 'method_not_allowed', 'This method is not allowed' );
+		}
+
+		$response = wp_remote_request( $url, array(
+			'compress' => true,
+			'method' => $method,
+			'headers' => $headers,
+			'timeout' => $timeout,
+			'body' => $body,
+		) );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		$body = (object) simplexml_load_string( wp_remote_retrieve_body( $response ) );
+
+		if ( 200 != $code ) {
+
+			if ( isset( $body->Message ) ) {
+				return new WP_Error( $code, (string) $body->Message );
+			} elseif ( isset( $body->Error ) ) {
+				return new WP_Error( (string) $body->Error->Code, (string) $body->Error->Message );
+			}
+			return new WP_Error( $code, (string) 'unknown' );
+
+		}
+
+		return $body;
+
+	}
 	/**
 	 * subscriber_errors function.
 	 *
@@ -323,7 +359,6 @@ class MailsterAmazonSES {
 			}
 		}
 
-		$query['Action'] = 'SendRawEmail';
 		$query['RawMessage.Data'] = base64_encode( $raw_mail );
 
 		return $query;
@@ -375,28 +410,9 @@ class MailsterAmazonSES {
 	 */
 	public function verify_email( $emailaddress ) {
 
-		$response = ( wp_remote_post( 'https://email.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com', array(
-			'headers' => $this->get_header( $key, $secret ),
-			'sslverify' => true,
-			'body' => array(
-				'Action' => 'VerifyEmailIdentity',
-				'EmailAddress' => $emailaddress,
-			),
-		) ) );
+		$response = $this->do_get( 'VerifyEmailIdentity', array( 'EmailAddress' => $emailaddress ) );
 
-		$code = wp_remote_retrieve_response_code( $response );
-		$headers = wp_remote_retrieve_headers( $response );
-
-		if ( is_wp_error( $response ) || $code != 200 ) {
-			return false;
-		} else {
-			$response = simplexml_load_string( wp_remote_retrieve_body( $response ) );
-
-			if ( $response->VerifyEmailIdentityResult ) {
-				mailster_notice( sprintf( __( 'Please check your inbox. A new verification mails has been sent to %s', 'mailster' ), '"' . $emailaddress . '"' ), 'updated', true ); }
-
-			return true;
-		}
+		return ! is_wp_error( $response );
 
 	}
 
@@ -412,20 +428,11 @@ class MailsterAmazonSES {
 	 */
 	public function list_identities() {
 
-		$response = ( wp_remote_post( 'https://email.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com', array(
-			'headers' => $this->get_header(),
-			'sslverify' => true,
-			'body' => array(
-				'Action' => 'ListIdentities',
-			),
-		) ) );
+		$response = $this->do_get( 'ListIdentities' );
 
-		$code = wp_remote_retrieve_response_code( $response );
-
-		if ( is_wp_error( $response ) || $code != 200 ) {
+		if ( is_wp_error( $response ) ) {
 			return false;
 		}
-		$response = simplexml_load_string( wp_remote_retrieve_body( $response ) );
 
 		return (array) $response->ListIdentitiesResult->Identities->member;
 
@@ -448,6 +455,12 @@ class MailsterAmazonSES {
 		}
 		// only if delivery method is amazonses
 		if ( $options['deliverymethod'] == 'amazonses' ) {
+
+			if ( 'amazonsns' != $options['amazonses_bouncehandling'] ) {
+				delete_option( 'mailster_amazonsns_last_response' );
+				unset( $options['amazonses_key'] );
+			}
+
 			$old_user = mailster_option( 'amazonses_access_key' );
 			$old_pwd = mailster_option( 'amazonses_secret_key' );
 			$old_smtp_user = mailster_option( 'amazonses_smtp_user' );
@@ -458,7 +471,11 @@ class MailsterAmazonSES {
 				|| $old_smtp_pwd != $options['amazonses_smtp_pwd']
 				|| mailster_option( 'deliverymethod' ) != $options['deliverymethod'] || ! mailster_option( 'amazonses_verified' ) ) {
 
-				$limits = $this->getquota( false, $options['amazonses_access_key'], $options['amazonses_secret_key'] );
+				remove_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
+				mailster_update_option( 'amazonses_access_key', $options['amazonses_access_key'], true );
+				mailster_update_option( 'amazonses_secret_key', $options['amazonses_secret_key'], true );
+
+				$limits = $this->getquota( false );
 
 				if ( is_wp_error( $limits ) ) {
 
@@ -488,7 +505,7 @@ class MailsterAmazonSES {
 			}
 
 			if ( function_exists( 'fsockopen' ) && isset( $options['amazonses_smtp'] ) && $options['amazonses_smtp'] ) {
-				$host = 'email-smtp.us-east-1.amazonaws.com';
+				$host = MAILSTER_AMAZONSES_SMTP_ENDPOINT;
 				$port = $options['amazonses_secure'] == 'tls' ? 587 : 465;
 				$conn = @fsockopen( $host, $port, $errno, $errstr, 5 );
 
@@ -525,6 +542,84 @@ class MailsterAmazonSES {
 		// always reset to 24 hours
 		update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
 		update_option( '_transient__mailster_send_period', $limits['sent'] );
+	}
+
+	private function handle_sns() {
+
+		if ( 'amazonsns' == mailster_option( 'amazonses_bouncehandling' ) && mailster_option( 'amazonses_key' ) == $_GET['mailster_amazonsns'] && $data = file_get_contents( 'php://input' ) ) {
+
+			$obj = json_decode( $data );
+
+			update_option( 'mailster_amazonsns_last_response', $obj, 'no' );
+
+			switch ( $obj->Type ) {
+
+				case 'SubscriptionConfirmation':
+					$response = wp_remote_get( $obj->SubscribeURL );
+					$code = wp_remote_retrieve_response_code( $response );
+					$body = (object) simplexml_load_string( wp_remote_retrieve_body( $response ) );
+					if ( 200 == $code ) {
+						mailster_notice( sprintf( __( 'Mailster has successfully confirmed the Amazon SNS subscription to topic %s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>' ), 'notice', 360, 'amazonses-SubscriptionConfirmation' );
+					} else {
+						mailster_notice( sprintf( __( 'Mailster was not able to confirmed the Amazon SNS subscription to topic %s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>' ) . '<br><pre>' . print_r( $body, true ) . '</pre>', 'error', false, 'amazonses-SubscriptionConfirmation' );
+					}
+					break;
+
+				case 'Notification':
+					$message = json_decode( $obj->Message );
+					if ( ! isset( $message->mail ) ) {
+						break;
+					}
+					if ( ! isset( $message->mail->headers ) ) {
+						break;
+					}
+					$headers = array();
+					foreach ( $message->mail->headers as $header ) {
+						$headers[ $header->name ] = $header->value;
+					}
+					if ( ! isset( $headers['X-Mailster-ID'] ) ) {
+						break;
+					}
+					if ( $headers['X-Mailster-ID'] != mailster_option( 'ID' ) ) {
+						break;
+					}
+					$subscriber = mailster( 'subscribers' )->get_by_hash( $headers['X-Mailster'], false );
+					if ( ! $subscriber ) {
+						break;
+					}
+					$campaign = mailster( 'campaigns' )->get( (int) $headers['X-Mailster-Campaign'] );
+
+					$campaign_id = $campaign ? $campaign->ID : null;
+
+					switch ( $message->notificationType ) {
+						case 'Bounce':
+							$status = '[' . $message->bounce->bounceType . ' - ' . $message->bounce->bounceSubType . ']';
+							if ( isset( $message->bounce->bouncedRecipients[0]->diagnosticCode ) ) {
+								$status .= ' ' . $message->bounce->bouncedRecipients[0]->diagnosticCode;
+							}
+							switch ( $message->bounce->bounceType ) {
+								case 'Permanent':
+									mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+									break;
+								case 'Transient':
+								default:
+									mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, false, $status );
+									break;
+							}
+							break;
+						case 'Complaint':
+							$status = '[Complaint] ' . $message->complaint->complaintFeedbackType;
+							mailster( 'subscribers' )->unsubscribe( $subscriber->ID, $campaign_id, 'complain' );
+							break;
+						case 'Delivery':
+							break;
+					}
+					break;
+			}
+
+			wp_die( 'This page handles the Bounces and messages from Amazon SNS for Mailster.', 'Mailster Amazon SNS Endpoint' );
+		}
+
 	}
 
 

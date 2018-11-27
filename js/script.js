@@ -7,5 +7,13 @@ jQuery(document).ready(function($) {
 			: $('.amazonses-tab-smtp').slideUp();
 
 	});
+	$('.amazonses_bouncehandling').on('change', function(){
+
+		(!$(this).val())
+			? $('.amazonsns-options').slideUp()
+			: $('.amazonsns-options').slideDown();
+
+	});
+
 
 });

@@ -1,3 +1,4 @@
+<?php $amazonsns_key = mailster_option( 'amazonses_key', md5( uniqid() ) ); ?>
 <table class="form-table">
 	<tr valign="top">
 		<th scope="row">&nbsp;</th>
@@ -108,6 +109,32 @@ endif; ?>
 		<th scope="row"><?php _e( 'Update Limits' , 'mailster-amazonses' ) ?></th>
 		<td><label><input type="checkbox" name="mailster_options[amazonses_autoupdate]" value="1" <?php checked( mailster_option( 'amazonses_autoupdate' ), true )?>> <?php _e( 'auto update send limits (recommended)', 'mailster-amazonses' ); ?> </label></td>
 	</tr>
+	<tr valign="top">
+		<th scope="row"><?php esc_html_e( 'Bounce Handling via', 'mailster-amazonses' ) ?></th>
+		<td>
+		<select name="mailster_options[amazonses_bouncehandling]" class="amazonses_bouncehandling">
+			<option value="" <?php selected( ! mailster_option( 'amazonses_bouncehandling' ) )?>>Mailster's Bounce Settings</option>
+			<option value="amazonsns" <?php selected( mailster_option( 'amazonses_bouncehandling' ), 'amazonsns' )?>>AmazonSNS</option>
+		</select>
+		<div class="amazonsns-options" <?php if ( ! mailster_option( 'amazonses_bouncehandling' ) ) { echo ' style="display:none"'; } ?>>
+			<?php if ( mailster_is_local() ) : ?>
+				<div class="notice error inline"><p><?php esc_html_e( 'AmazonSNS is not available on localhost!', 'mailster-amazonses' ) ?></p></div>
+			<?php else : ?>
+			<p class="description"><?php esc_html_e( 'Mailster can handle bounces via AmazonSNS. This is the recommended and most reliable way and requires some setup.', 'mailster-amazonses' ) ?></p>
+			<p class="description"><?php printf( esc_html__( 'Read more about the setup process %s.', 'mailster-amazonses' ), '<a href="https://kb.mailster.co/handling-bounces-with-amazonsns/" class="external">' . esc_html__( 'here', 'mailster-amazonses' ) . '</a>' ) ?></p>
+			<?php $enpoint = add_query_arg( array( 'mailster_amazonsns' => $amazonsns_key ), home_url( '/' ) ) ?>
+			<?php $last_response = get_option( 'mailster_amazonsns_last_response' ); ?>
+			<p><strong><?php esc_html_e( 'Endpoint', 'mailster-amazonses' ) ?></strong></p>
+			<div class="<?php echo $last_response ? 'verified' : 'not-verified' ?>"><a href="<?php echo esc_attr( $enpoint ) ?>" class="external"><code id="amazonsns-endpoint"><?php echo esc_attr( $enpoint ) ?></code></a> <a class="clipboard" data-clipboard-target="#amazonsns-endpoint"><?php esc_html_e( 'copy', 'mailster-amazonses' ) ?></a></div>
+			<?php if ( $last_response ) : ?>
+				<p><strong><?php esc_html_e( 'Last Response', 'mailster-amazonses' ) ?></strong></p>
+				<textarea rows="10" cols="40" class="large-text code"><?php echo print_r( $last_response, true ) ?></textarea>
+			<?php endif; ?>
+			<?php endif; ?>
+		</div>
+		</td>
+	</tr>
+
 </table>
 <?php else : ?>
 <input type="hidden" name="mailster_options[amazonses_smtp]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp' ) ) ?>">
@@ -115,6 +142,7 @@ endif; ?>
 <input type="hidden" name="mailster_options[amazonses_smtp_pwd]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_pwd' ) ) ?>">
 <input type="hidden" name="mailster_options[amazonses_secure]" value="<?php echo esc_attr( mailster_option( 'amazonses_secure' ) ) ?>">
 <input type="hidden" name="mailster_options[amazonses_autoupdate]" value="<?php echo esc_attr( mailster_option( 'amazonses_autoupdate' ) ) ?>">
+<input type="hidden" name="mailster_options[amazonses_bouncehandling]" value="<?php echo esc_attr( mailster_option( 'amazonses_bouncehandling' ) ) ?>">
 	<?php if ( $verified ) : ?>
 	<table class="form-table">
 		<tr valign="top">
@@ -124,3 +152,4 @@ endif; ?>
 	</table>
 	<?php endif; ?>
 <?php endif; ?>
+<input type="hidden" name="mailster_options[amazonses_key]" value="<?php echo esc_attr( mailster_option( 'amazonses_key', $amazonsns_key ) ) ?>">
