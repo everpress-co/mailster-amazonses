@@ -125,7 +125,7 @@ class MailsterAmazonSES {
 		$signature = base64_encode( hash_hmac( 'sha1', $date_value, $secret, true ) );
 
 		return array(
-			//'Content-Type' => 'application/x-www-form-urlencoded',
+			// 'Content-Type' => 'application/x-www-form-urlencoded',
 			'Date'                 => $date_value,
 			'X-Amzn-Authorization' => 'AWS3-HTTPS AWSAccessKeyId=' . $key . ',Algorithm=HmacSHA1,Signature=' . $signature,
 		);
