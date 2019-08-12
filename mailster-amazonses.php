@@ -12,7 +12,7 @@ License: GPLv2 or later
 
 
 define( 'MAILSTER_AMAZONSES_VERSION', '2.0' );
-define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '2.3' );
+define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '2.4' );
 define( 'MAILSTER_AMAZONSES_FILE', __FILE__ );
 
 require_once dirname( __FILE__ ) . '/classes/amazonses.class.php';

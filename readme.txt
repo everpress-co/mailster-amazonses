@@ -1,8 +1,8 @@
 === Mailster AmazonSES Integration ===
-Contributors: everpress, revaxarts
+Contributors: everpress
 Tags: amazon, ses, mailster, newsletter, mailsteresp
 Requires at least: 4.2
-Tested up to: 5.0
+Tested up to: 5.2
 Stable tag: 2.0
 License: GPLv2 or later
 Author: EverPress
