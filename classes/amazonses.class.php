@@ -11,7 +11,7 @@ class MailsterAmazonSES {
 	public function __construct() {
 
 		$this->plugin_path = plugin_dir_path( MAILSTER_AMAZONSES_FILE );
-		$this->plugin_url = plugin_dir_url( MAILSTER_AMAZONSES_FILE );
+		$this->plugin_url  = plugin_dir_url( MAILSTER_AMAZONSES_FILE );
 
 		register_activation_hook( MAILSTER_AMAZONSES_FILE, array( &$this, 'activate' ) );
 		register_deactivation_hook( MAILSTER_AMAZONSES_FILE, array( &$this, 'deactivate' ) );
@@ -89,13 +89,13 @@ class MailsterAmazonSES {
 
 			$secure = mailster_option( 'amazonses_secure' );
 
-			$mailobject->mailer->Mailer = 'smtp';
-			$mailobject->mailer->SMTPSecure = $secure;
-			$mailobject->mailer->Host = MAILSTER_AMAZONSES_SMTP_ENDPOINT;
-			$mailobject->mailer->Port = $secure == 'tls' ? 587 : 465;
-			$mailobject->mailer->SMTPAuth = true;
-			$mailobject->mailer->Username = mailster_option( 'amazonses_smtp_user' );
-			$mailobject->mailer->Password = mailster_option( 'amazonses_smtp_pwd' );
+			$mailobject->mailer->Mailer        = 'smtp';
+			$mailobject->mailer->SMTPSecure    = $secure;
+			$mailobject->mailer->Host          = MAILSTER_AMAZONSES_SMTP_ENDPOINT;
+			$mailobject->mailer->Port          = $secure == 'tls' ? 587 : 465;
+			$mailobject->mailer->SMTPAuth      = true;
+			$mailobject->mailer->Username      = mailster_option( 'amazonses_smtp_user' );
+			$mailobject->mailer->Password      = mailster_option( 'amazonses_smtp_pwd' );
 			$mailobject->mailer->SMTPKeepAlive = true;
 
 		} else {
@@ -117,7 +117,7 @@ class MailsterAmazonSES {
 	 */
 	private function get_header() {
 
-		$key = mailster_option( 'amazonses_access_key' );
+		$key    = mailster_option( 'amazonses_access_key' );
 		$secret = mailster_option( 'amazonses_secret_key' );
 
 		$date_value = date( DATE_RFC2822 );
@@ -126,7 +126,7 @@ class MailsterAmazonSES {
 
 		return array(
 			//'Content-Type' => 'application/x-www-form-urlencoded',
-			'Date' => $date_value,
+			'Date'                 => $date_value,
 			'X-Amzn-Authorization' => 'AWS3-HTTPS AWSAccessKeyId=' . $key . ',Algorithm=HmacSHA1,Signature=' . $signature,
 		);
 
@@ -183,7 +183,7 @@ class MailsterAmazonSES {
 
 			$body = $this->generate_body( $mailobject );
 
-			$start = microtime( true );
+			$start    = microtime( true );
 			$response = $this->do_post( 'SendRawEmail', $body, 30 );
 
 			if ( is_wp_error( $response ) ) {
@@ -220,9 +220,9 @@ class MailsterAmazonSES {
 		}
 
 		$limits = array(
-			'sent' => intval( $response->GetSendQuotaResult->SentLast24Hours ),
+			'sent'  => intval( $response->GetSendQuotaResult->SentLast24Hours ),
 			'limit' => intval( $response->GetSendQuotaResult->Max24HourSend ),
-			'rate' => ceil( ( 1000 / intval( $response->GetSendQuotaResult->MaxSendRate ) * 0.1 ) ),
+			'rate'  => ceil( ( 1000 / intval( $response->GetSendQuotaResult->MaxSendRate ) * 0.1 ) ),
 		);
 
 		$limits['sent'] = min( $limits['sent'], $limits['limit'] );
@@ -259,9 +259,12 @@ class MailsterAmazonSES {
 
 		$headers = $this->get_header();
 
-		$args = wp_parse_args( $args, array(
-			'Action' => $action,
-		) );
+		$args = wp_parse_args(
+			$args,
+			array(
+				'Action' => $action,
+			)
+		);
 
 		$body = null;
 
@@ -273,13 +276,16 @@ class MailsterAmazonSES {
 			return new WP_Error( 'method_not_allowed', 'This method is not allowed' );
 		}
 
-		$response = wp_remote_request( $url, array(
-			'compress' => true,
-			'method' => $method,
-			'headers' => $headers,
-			'timeout' => $timeout,
-			'body' => $body,
-		) );
+		$response = wp_remote_request(
+			$url,
+			array(
+				'compress' => true,
+				'method'   => $method,
+				'headers'  => $headers,
+				'timeout'  => $timeout,
+				'body'     => $body,
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -461,10 +467,10 @@ class MailsterAmazonSES {
 				unset( $options['amazonses_key'] );
 			}
 
-			$old_user = mailster_option( 'amazonses_access_key' );
-			$old_pwd = mailster_option( 'amazonses_secret_key' );
+			$old_user      = mailster_option( 'amazonses_access_key' );
+			$old_pwd       = mailster_option( 'amazonses_secret_key' );
 			$old_smtp_user = mailster_option( 'amazonses_smtp_user' );
-			$old_smtp_pwd = mailster_option( 'amazonses_smtp_pwd' );
+			$old_smtp_pwd  = mailster_option( 'amazonses_smtp_pwd' );
 			if ( $old_user != $options['amazonses_access_key']
 				|| $old_pwd != $options['amazonses_secret_key']
 				|| $old_smtp_user != $options['amazonses_smtp_user']
@@ -487,9 +493,9 @@ class MailsterAmazonSES {
 					$options['amazonses_verified'] = true;
 
 					if ( $limits ) {
-						$options['send_limit'] = $limits['limit'];
+						$options['send_limit']  = $limits['limit'];
 						$options['send_period'] = 24;
-						$options['send_delay'] = $limits['rate'];
+						$options['send_delay']  = $limits['rate'];
 						update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
 						update_option( '_transient__mailster_send_period', $limits['sent'] );
 
@@ -556,8 +562,8 @@ class MailsterAmazonSES {
 
 				case 'SubscriptionConfirmation':
 					$response = wp_remote_get( $obj->SubscribeURL );
-					$code = wp_remote_retrieve_response_code( $response );
-					$body = (object) simplexml_load_string( wp_remote_retrieve_body( $response ) );
+					$code     = wp_remote_retrieve_response_code( $response );
+					$body     = (object) simplexml_load_string( wp_remote_retrieve_body( $response ) );
 					if ( 200 == $code ) {
 						mailster_notice( sprintf( __( 'Mailster has successfully confirmed the Amazon SNS subscription to topic %s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>' ), 'notice', 360, 'amazonses-SubscriptionConfirmation' );
 					} else {
@@ -632,10 +638,10 @@ class MailsterAmazonSES {
 	 * @return void
 	 */
 	public function notice() {
-?>
+		?>
 	<div class="error">
 		<p>
-		<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION ?></strong>. Plugin deactivated.
+		<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
 		</p>
 	</div>
 		<?php
@@ -657,8 +663,8 @@ class MailsterAmazonSES {
 			}
 
 			$defaults = array(
-				'amazonses_endpoint' => 'us-east-1',
-				'amazonses_secure' => 'tls',
+				'amazonses_endpoint'   => 'us-east-1',
+				'amazonses_secure'     => 'tls',
 				'amazonses_autoupdate' => true,
 			);
 
