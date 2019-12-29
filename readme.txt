@@ -2,7 +2,7 @@
 Contributors: everpress
 Tags: amazon, ses, mailster, newsletter, mailsteresp
 Requires at least: 4.2
-Tested up to: 5.2
+Tested up to: 5.3
 Stable tag: 2.0
 License: GPLv2 or later
 Author: EverPress
@@ -10,7 +10,7 @@ Author URI: https://mailster.co
 
 == Description ==
 
-Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster).
+Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme).
 
 == Installation ==
 
@@ -27,7 +27,7 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 == Changelog ==
 
 = 2.0 =
-* New: Handle Bounces via [AmazonSNS](https://kb.mailster.co/handling-bounces-with-amazonsns/)
+* New: Handle Bounces via [AmazonSNS](https://kb.mailster.co/handling-bounces-with-amazonsns/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme)
 
 = 1.2 =
 * improved resource handling if method is not enabled
@@ -47,6 +47,6 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 
 == Upgrade Notice ==
 
-== Additional Info One ==
+== Additional Info ==
 
-> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster)
+> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme)

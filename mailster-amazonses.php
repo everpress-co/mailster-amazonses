@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Mailster AmazonSES Integration
-Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=Mailster+AmazonSES+integration
+Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=Mailster+AmazonSES+integration&utm_medium=plugin
 Description: Uses Amazon's Simple Email Service (SES) to deliver emails for the Mailster Newsletter Plugin for WordPress.
 Version: 2.0
 Author: EverPress
