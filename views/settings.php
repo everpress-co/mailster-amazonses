@@ -2,32 +2,38 @@
 <table class="form-table">
 	<tr valign="top">
 		<th scope="row">&nbsp;</th>
-		<td><p class="description"><?php echo sprintf( __( 'You need to create %s to work with Amazon SES', 'mailster-amazonses' ), '<a href="https://console.aws.amazon.com/iam/home?#security_credential" class="external">Access Keys</a>' ); ?></p>
-		<p class="description"><?php echo sprintf( __( 'You have to %s to send mails to unverified mails', 'mailster-amazonses' ), '<a href="http://aws.amazon.com/ses/fullaccessrequest/" class="external">request Production Access</a>' ); ?></p>
+		<td><p class="description"><?php printf( esc_html__( 'You need to create %s to work with Amazon SES', 'mailster-amazonses' ), '<a href="https://console.aws.amazon.com/iam/home?#security_credential" class="external">Access Keys</a>' ); ?></p>
+		<p class="description"><?php printf( esc_html__( 'You have to %s to send mails to unverified mails', 'mailster-amazonses' ), '<a href="http://aws.amazon.com/ses/fullaccessrequest/" class="external">request Production Access</a>' ); ?></p>
 		</td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Amazon AWS Access Key', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'Amazon AWS Access Key', 'mailster-amazonses' ); ?></th>
 		<td><input type="text" name="mailster_options[amazonses_access_key]" value="<?php echo esc_attr( mailster_option( 'amazonses_access_key' ) ); ?>" class="regular-text" placeholder="XXXXXXXXXXXXXXXXXXXX"></td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Amazon AWS Secret Key', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'Amazon AWS Secret Key', 'mailster-amazonses' ); ?></th>
 		<td><input type="password" name="mailster_options[amazonses_secret_key]" value="<?php echo esc_attr( mailster_option( 'amazonses_secret_key' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Endpoint', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'Endpoint', 'mailster-amazonses' ); ?></th>
 		<td>
 		<select name="mailster_options[amazonses_endpoint]" >
 			<?php
 			$current   = mailster_option( 'amazonses_endpoint' );
 			$endpoints = array(
-				'us-east-1' => 'US East (N. Virginia) Region',
-				'us-west-2' => 'US West (Oregon) Region',
-				'eu-west-1' => 'EU (Ireland)',
+				'us-east-1'      => 'US East (N. Virginia)',
+				'us-west-2'      => 'US West (Oregon)',
+				'ap-south-1'     => 'Asia Pacific (Mumbai)',
+				'ap-southeast-2' => 'Asia Pacific (Sydney)',
+				'ca-central-1'   => 'Canada (Central)',
+				'eu-central-1'   => 'Europe (Frankfurt)',
+				'eu-west-1'      => 'Europe (Ireland)',
+				'eu-west-2'      => 'Europe (London)',
+				'sa-east-1'      => 'South America (São Paulo)',
 			);
 			foreach ( $endpoints as $endpoint => $name ) {
 				?>
-				<option value="<?php echo esc_attr( $endpoint ); ?>" <?php selected( $current == $endpoint ); ?>><?php echo $name . ' (' . $endpoint . ')'; ?></option>
+				<option value="<?php echo esc_attr( $endpoint ); ?>" <?php selected( $current == $endpoint ); ?>><?php echo esc_html( $name . ' (' . $endpoint . ')' ); ?></option>
 			<?php } ?>
 		</select>
 		</td>
@@ -40,7 +46,7 @@
 			<?php else : ?>
 			<span style="color:#D54E21">&#10006;</span> <?php esc_html_e( 'Your credentials are WRONG!', 'mailster-amazonses' ); ?>
 			<?php endif; ?>
-			<input type="hidden" name="mailster_options[amazonses_verified]" value="<?php echo $verified; ?>">
+			<input type="hidden" name="mailster_options[amazonses_verified]" value="<?php echo esc_attr( $verified ); ?>">
 		</td>
 	</tr>
 </table>
@@ -49,10 +55,10 @@
 	<?php
 	if ( $verified ) :
 		$verified_identities = $this->list_identities();
-		if ( is_array( $verified_identities ) ) {
+		if ( is_array( $verified_identities ) ) :
 			?>
 			<tr valign="top">
-			<th scope="row"><?php _e( 'verified email addresses', 'mailster-amazonses' ); ?></th>
+			<th scope="row"><?php esc_html_e( 'verified email addresses', 'mailster-amazonses' ); ?></th>
 	<td><p>
 			<?php
 			$to_verfy = array_filter( array_unique( array( mailster_option( 'from' ), mailster_option( 'reply_to' ), mailster_option( 'bounce' ) ) ) );
@@ -60,9 +66,9 @@
 				$domain = ltrim( strrchr( $email, '@' ), '@' );
 				echo '<strong>' . esc_html( $email ) . '</strong> ';
 				if ( in_array( $email, $verified_identities ) ) {
-					echo '<span style="color:#3AB61B">&#10004;</span> <span class="description">' . __( 'is verified', 'mailster-amazonses' ) . '</span><br>';
+					echo '<span style="color:#3AB61B">&#10004;</span> <span class="description">' . esc_html__( 'is verified', 'mailster-amazonses' ) . '</span><br>';
 				} elseif ( in_array( $domain, $verified_identities ) ) {
-					echo '<span style="color:#3AB61B">&#10004;</span> <span class="description">' . __( 'is verified', 'mailster-amazonses' ) . ' (' . sprintf( __( 'via domain %s', 'mailster-amazonses' ), '<strong>' . $domain . '</strong>' ) . ')</span><br>';
+					echo '<span style="color:#3AB61B">&#10004;</span> <span class="description">' . esc_html__( 'is verified', 'mailster-amazonses' ) . ' (' . sprintf( esc_html__( 'via domain %s', 'mailster-amazonses' ), '<strong>' . $domain . '</strong>' ) . ')</span><br>';
 				} else {
 					$link = add_query_arg(
 						array(
@@ -70,57 +76,50 @@
 							'_wpnonce' => wp_create_nonce( 'verify_email' ),
 						)
 					);
-					echo '<span style="color:#D54E21">&#10006;</span> <span class="description">' . __( 'is not verified', 'mailster-amazonses' ) . ' <a href="' . $link . '#delivery" class="button button-small"> ' . __( 'verify now', 'mailster' ) . '</a></span><br>';
+					echo '<span style="color:#D54E21">&#10006;</span> <span class="description">' . esc_html__( 'is not verified', 'mailster-amazonses' ) . ' <a href="' . $link . '#delivery" class="button button-small"> ' . esc_html__( 'verify now', 'mailster' ) . '</a></span><br>';
 				}
 			}
 			?>
 		</p>
-		<p><a href="https://console.aws.amazon.com/ses/home#verified-senders-email:" class="external"><?php _e( 'Verified email addresses', 'mailster-amazonses' ); ?></a> | <a href="https://console.aws.amazon.com/ses/home#verified-senders-domain:" class="external"><?php _e( 'Verified domains', 'mailster-amazonses' ); ?></a></p>
+		<p><a href="https://console.aws.amazon.com/ses/home#verified-senders-email:" class="external"><?php esc_html_e( 'Verified email addresses', 'mailster-amazonses' ); ?></a> | <a href="https://console.aws.amazon.com/ses/home#verified-senders-domain:" class="external"><?php esc_html_e( 'Verified domains', 'mailster-amazonses' ); ?></a></p>
 		</td>
 	</tr>
-			<?php
-		}
-endif;
-	?>
+		<?php endif; ?>
+	<?php endif; ?>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'send via', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'send via', 'mailster-amazonses' ); ?></th>
 		<td><select class="mailster-amazonses-api" name="mailster_options[amazonses_smtp]">
-			<option value="0" <?php selected( ! mailster_option( 'amazonses_smtp' ) ); ?>><?php _e( 'WEB API', 'mailster-amazonses' ); ?></option>
-			<option value="1" <?php selected( mailster_option( 'amazonses_smtp' ) ); ?>><?php _e( 'SMTP API', 'mailster-amazonses' ); ?></option>
+			<option value="0" <?php selected( ! mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'WEB API', 'mailster-amazonses' ); ?></option>
+			<option value="1" <?php selected( mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'SMTP API', 'mailster-amazonses' ); ?></option>
 		</select>
 	</tr>
 </table>
-<div class="amazonses-tab-smtp" 
-	<?php
-	if ( ! mailster_option( 'amazonses_smtp' ) ) {
-		echo ' style="display:none"'; }
-	?>
->
+<div class="amazonses-tab-smtp" <?php echo mailster_option( 'amazonses_smtp' ) ? '' : ' style="display:none"'; ?>>
 <table class="form-table">
 	<tr valign="top">
 		<th scope="row">&nbsp;</th>
-		<td><p class="description"><?php echo sprintf( __( 'You have to create %s to get your username and password', 'mailster-amazonses' ), '<a href="https://console.aws.amazon.com/ses/home#smtp-settings:" class="external">SMTP credentials</a>' ); ?></p>
+		<td><p class="description"><?php printf( esc_html__( 'You have to create %s to get your username and password', 'mailster-amazonses' ), '<a href="https://console.aws.amazon.com/ses/home#smtp-settings:" class="external">SMTP credentials</a>' ); ?></p>
 	</td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Amazon SES SMTP Username', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'Amazon SES SMTP Username', 'mailster-amazonses' ); ?></th>
 		<td><input type="text" name="mailster_options[amazonses_smtp_user]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_user' ) ); ?>" class="regular-text" placeholder="XXXXXXXXXXXXXXXXXXXX"></td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Amazon SES SMTP Password', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'Amazon SES SMTP Password', 'mailster-amazonses' ); ?></th>
 		<td><input type="password" name="mailster_options[amazonses_smtp_pwd]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_pwd' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Connection', 'mailster-amazonses' ); ?></th>
-		<td><label><input type="radio" name="mailster_options[amazonses_secure]" value="tls" <?php checked( mailster_option( 'amazonses_secure' ), 'tls' ); ?>> <?php _e( 'TLS', 'mailster-amazonses' ); ?></label>
-		<label><input type="radio" name="mailster_options[amazonses_secure]" value="ssl" <?php checked( mailster_option( 'amazonses_secure' ), 'ssl' ); ?>> <?php _e( 'SSL', 'mailster-amazonses' ); ?></label></td>
+		<th scope="row"><?php esc_html_e( 'Connection', 'mailster-amazonses' ); ?></th>
+		<td><label><input type="radio" name="mailster_options[amazonses_secure]" value="tls" <?php checked( mailster_option( 'amazonses_secure' ), 'tls' ); ?>> <?php esc_html_e( 'TLS', 'mailster-amazonses' ); ?></label>
+		<label><input type="radio" name="mailster_options[amazonses_secure]" value="ssl" <?php checked( mailster_option( 'amazonses_secure' ), 'ssl' ); ?>> <?php esc_html_e( 'SSL', 'mailster-amazonses' ); ?></label></td>
 	</tr>
 </table>
 </div>
 <table class="form-table">
 	<tr valign="top">
-		<th scope="row"><?php _e( 'Update Limits', 'mailster-amazonses' ); ?></th>
-		<td><label><input type="checkbox" name="mailster_options[amazonses_autoupdate]" value="1" <?php checked( mailster_option( 'amazonses_autoupdate' ), true ); ?>> <?php _e( 'auto update send limits (recommended)', 'mailster-amazonses' ); ?> </label></td>
+		<th scope="row"><?php esc_html_e( 'Update Limits', 'mailster-amazonses' ); ?></th>
+		<td><label><input type="checkbox" name="mailster_options[amazonses_autoupdate]" value="1" <?php checked( mailster_option( 'amazonses_autoupdate' ), true ); ?>> <?php esc_html_e( 'auto update send limits (recommended)', 'mailster-amazonses' ); ?> </label></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Bounce Handling via', 'mailster-amazonses' ); ?></th>
@@ -129,12 +128,7 @@ endif;
 			<option value="" <?php selected( ! mailster_option( 'amazonses_bouncehandling' ) ); ?>>Mailster's Bounce Settings</option>
 			<option value="amazonsns" <?php selected( mailster_option( 'amazonses_bouncehandling' ), 'amazonsns' ); ?>>AmazonSNS</option>
 		</select>
-		<div class="amazonsns-options" 
-		<?php
-		if ( ! mailster_option( 'amazonses_bouncehandling' ) ) {
-			echo ' style="display:none"'; }
-		?>
-		>
+		<div class="amazonsns-options" <?php echo mailster_option( 'amazonses_bouncehandling' ) ? '' : ' style="display:none"'; ?>>
 			<?php if ( mailster_is_local() ) : ?>
 				<div class="notice error inline"><p><?php esc_html_e( 'AmazonSNS is not available on localhost!', 'mailster-amazonses' ); ?></p></div>
 			<?php else : ?>
