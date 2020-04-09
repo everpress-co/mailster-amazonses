@@ -255,7 +255,7 @@ class MailsterAmazonSES {
 			return new WP_Error( 'method_not_allowed', 'This method is not allowed' );
 		}
 
-		$url = 'https://' . MAILSTER_AMAZONSES_ENDPOINT;
+		$url = 'https://' . MAILSTER_AMAZONSES_ENDPOINT . '/';
 
 		$headers = $this->get_header();
 

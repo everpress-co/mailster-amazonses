@@ -59,7 +59,7 @@
 			?>
 			<tr valign="top">
 			<th scope="row"><?php esc_html_e( 'verified email addresses', 'mailster-amazonses' ); ?></th>
-	<td><p>
+			<td><p>
 			<?php
 			$to_verfy = array_filter( array_unique( array( mailster_option( 'from' ), mailster_option( 'reply_to' ), mailster_option( 'bounce' ) ) ) );
 			foreach ( $to_verfy as $email ) {
