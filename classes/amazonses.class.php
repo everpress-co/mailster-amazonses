@@ -156,7 +156,6 @@ class MailsterAmazonSES {
 				)
 			);
 
-
 			if ( is_wp_error( $result ) ) {
 				file_put_contents( trailingslashit( WP_CONTENT_DIR ) . 'log/' . $mailobject->to[0] . '.log', print_r( $result, true ), FILE_APPEND );
 				$mailobject->set_error( $result->get_error_message() );
@@ -201,7 +200,7 @@ class MailsterAmazonSES {
 			return call_user_func( array( $this->aws, $method ), $args );
 		} catch ( \Aws\SesV2\Exception\SesV2Exception $e ) {
 			return new WP_Error( $e->getAwsErrorCode(), $e->getAwsErrorMessage() );
-		}catch ( \Exception $e ) {
+		} catch ( \Exception $e ) {
 			return new WP_Error( 'error', $e->getMessage() );
 		}
 	}

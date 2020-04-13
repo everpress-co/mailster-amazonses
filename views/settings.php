@@ -56,7 +56,7 @@
 	if ( $verified ) :
 		$verified_identities = $this->list_identities();
 		if ( is_array( $verified_identities ) ) :
-			$identities = wp_list_pluck( $verified_identities, 'IdentityName');
+			$identities = wp_list_pluck( $verified_identities, 'IdentityName' );
 			?>
 			<tr valign="top">
 			<th scope="row"><?php esc_html_e( 'Verified email addresses', 'mailster-amazonses' ); ?></th>
