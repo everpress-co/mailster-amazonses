@@ -157,13 +157,11 @@ class MailsterAmazonSES {
 			);
 
 			if ( is_wp_error( $result ) ) {
-				file_put_contents( trailingslashit( WP_CONTENT_DIR ) . 'log/' . $mailobject->to[0] . '.log', print_r( $result, true ), FILE_APPEND );
 				$mailobject->set_error( $result->get_error_message() );
 				$mailobject->sent = false;
 			} elseif ( 200 == $result->get( '@metadata' )['statusCode'] ) {
 				$mailobject->sent = true;
 			} else {
-				file_put_contents( trailingslashit( WP_CONTENT_DIR ) . 'log/' . $mailobject->to[0] . '.log', print_r( $result, true ), FILE_APPEND );
 				$mailobject->set_error( 'unknown error' );
 				$mailobject->sent = false;
 			}
@@ -208,6 +206,10 @@ class MailsterAmazonSES {
 	public function getquota( $save = true, $key = '', $secret = '' ) {
 
 		$result = $this->aws( 'getAccount' );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
 
 		$quota = $result->get( 'SendQuota' );
 
