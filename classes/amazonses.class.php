@@ -257,12 +257,7 @@ class MailsterAmazonSES {
 
 	public function verify_email( $emailaddress ) {
 
-		$result = $this->aws(
-			'createEmailIdentity',
-			array(
-				'EmailIdentity' => $emailaddress,
-			)
-		);
+		$result = $this->aws( 'createEmailIdentity', array( 'EmailIdentity' => $emailaddress ) );
 
 		return ! is_wp_error( $result ) && ( 200 == $result->get( '@metadata' )['statusCode'] );
 	}
@@ -271,6 +266,10 @@ class MailsterAmazonSES {
 	public function list_identities() {
 
 		$result = $this->aws( 'ListEmailIdentities' );
+
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
 
 		return $result->get( 'EmailIdentities' );
 
