@@ -23,13 +23,13 @@
 			$endpoints = array(
 				'us-east-1'      => 'US East (N. Virginia)',
 				'us-west-2'      => 'US West (Oregon)',
-				'ap-south-1'     => 'Asia Pacific (Mumbai)',
-				'ap-southeast-2' => 'Asia Pacific (Sydney)',
-				'ca-central-1'   => 'Canada (Central)',
-				'eu-central-1'   => 'Europe (Frankfurt)',
+				//'ap-south-1'     => 'Asia Pacific (Mumbai)',
+				//'ap-southeast-2' => 'Asia Pacific (Sydney)',
+				//'ca-central-1'   => 'Canada (Central)',
+				//'eu-central-1'   => 'Europe (Frankfurt)',
 				'eu-west-1'      => 'Europe (Ireland)',
-				'eu-west-2'      => 'Europe (London)',
-				'sa-east-1'      => 'South America (São Paulo)',
+				//'eu-west-2'      => 'Europe (London)',
+				//'sa-east-1'      => 'South America (São Paulo)',
 			);
 			foreach ( $endpoints as $endpoint => $name ) {
 				?>
@@ -56,19 +56,18 @@
 	if ( $verified ) :
 		$verified_identities = $this->list_identities();
 		if ( is_array( $verified_identities ) ) :
-			$identities = wp_list_pluck( $verified_identities, 'IdentityName' );
 			?>
 			<tr valign="top">
-			<th scope="row"><?php esc_html_e( 'Verified email addresses', 'mailster-amazonses' ); ?></th>
-			<td><p>
+			<th scope="row"><?php esc_html_e( 'verified email addresses', 'mailster-amazonses' ); ?></th>
+	<td><p>
 			<?php
 			$to_verfy = array_filter( array_unique( array( mailster_option( 'from' ), mailster_option( 'reply_to' ), mailster_option( 'bounce' ) ) ) );
 			foreach ( $to_verfy as $email ) {
 				$domain = ltrim( strrchr( $email, '@' ), '@' );
 				echo '<strong>' . esc_html( $email ) . '</strong> ';
-				if ( in_array( $email, $identities ) ) {
+				if ( in_array( $email, $verified_identities ) ) {
 					echo '<span style="color:#3AB61B">&#10004;</span> <span class="description">' . esc_html__( 'is verified', 'mailster-amazonses' ) . '</span><br>';
-				} elseif ( in_array( $domain, $identities ) ) {
+				} elseif ( in_array( $domain, $verified_identities ) ) {
 					echo '<span style="color:#3AB61B">&#10004;</span> <span class="description">' . esc_html__( 'is verified', 'mailster-amazonses' ) . ' (' . sprintf( esc_html__( 'via domain %s', 'mailster-amazonses' ), '<strong>' . $domain . '</strong>' ) . ')</span><br>';
 				} else {
 					$link = add_query_arg(
@@ -90,7 +89,7 @@
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'send via', 'mailster-amazonses' ); ?></th>
 		<td><select class="mailster-amazonses-api" name="mailster_options[amazonses_smtp]">
-			<option value="0" <?php selected( ! mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'WEB API (recommended)', 'mailster-amazonses' ); ?></option>
+			<option value="0" <?php selected( ! mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'WEB API', 'mailster-amazonses' ); ?></option>
 			<option value="1" <?php selected( mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'SMTP API', 'mailster-amazonses' ); ?></option>
 		</select>
 	</tr>
