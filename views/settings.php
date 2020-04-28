@@ -21,15 +21,15 @@
 			<?php
 			$current   = mailster_option( 'amazonses_endpoint' );
 			$endpoints = array(
-				'us-east-1'      => 'US East (N. Virginia)',
-				'us-west-2'      => 'US West (Oregon)',
-				//'ap-south-1'     => 'Asia Pacific (Mumbai)',
-				//'ap-southeast-2' => 'Asia Pacific (Sydney)',
-				//'ca-central-1'   => 'Canada (Central)',
-				//'eu-central-1'   => 'Europe (Frankfurt)',
-				'eu-west-1'      => 'Europe (Ireland)',
-				//'eu-west-2'      => 'Europe (London)',
-				//'sa-east-1'      => 'South America (São Paulo)',
+				'us-east-1' => 'US East (N. Virginia)',
+				'us-west-2' => 'US West (Oregon)',
+				// 'ap-south-1'     => 'Asia Pacific (Mumbai)',
+				// 'ap-southeast-2' => 'Asia Pacific (Sydney)',
+				// 'ca-central-1'   => 'Canada (Central)',
+				// 'eu-central-1'   => 'Europe (Frankfurt)',
+				'eu-west-1' => 'Europe (Ireland)',
+				// 'eu-west-2'      => 'Europe (London)',
+				// 'sa-east-1'      => 'South America (São Paulo)',
 			);
 			foreach ( $endpoints as $endpoint => $name ) {
 				?>

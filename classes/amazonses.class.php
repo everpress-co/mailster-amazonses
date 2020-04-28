@@ -480,6 +480,7 @@ class MailsterAmazonSES {
 				remove_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
 				mailster_update_option( 'amazonses_access_key', $options['amazonses_access_key'], true );
 				mailster_update_option( 'amazonses_secret_key', $options['amazonses_secret_key'], true );
+				mailster_update_option( 'amazonses_endpoint', $options['amazonses_endpoint'], true );
 
 				$limits = $this->getquota( false );
 
