@@ -3,7 +3,7 @@ Contributors: everpress
 Tags: amazon, ses, mailster, newsletter, mailsteresp
 Requires at least: 4.2
 Tested up to: 5.4
-Stable tag: 2.3
+Stable tag: 2.4
 License: GPLv2 or later
 Author: EverPress
 Author URI: https://mailster.co
@@ -25,6 +25,8 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 1. Option Interface.
 
 == Changelog ==
+
+= 2.4 =
 
 = 2.3 =
 * revert back to 2.1 state caused by conflicts with third party plugins. If you rely on one of these endpoints please wait to update until we got that sorted:
