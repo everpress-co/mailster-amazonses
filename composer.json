@@ -1,8 +1,5 @@
 {
     "require": {
         "aws/aws-sdk-php": "^3.134"
-    },
-    "require-dev": {
-        "coenjacobs/mozart": "^0.5.1"
     }
 }
