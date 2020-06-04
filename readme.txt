@@ -28,6 +28,8 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 
 = 2.4 =
 
+* brings back missing regions.
+
 = 2.3 =
 * revert back to 2.1 state caused by conflicts with third party plugins. If you rely on one of these endpoints please wait to update until we got that sorted:
 * Asia Pacific (Mumbai)
