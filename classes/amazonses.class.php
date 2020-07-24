@@ -275,7 +275,9 @@ class MailsterAmazonSES {
 					if ( $limits ) {
 						$options['send_limit']  = $limits['limit'];
 						$options['send_period'] = 24;
-						$options['send_delay']  = $limits['rate'];
+						if ( $options['amazonses_autoupdate'] ) {
+							$options['send_delay'] = $limits['rate'];
+						}
 						update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
 						update_option( '_transient__mailster_send_period', $limits['sent'] );
 
@@ -284,13 +286,13 @@ class MailsterAmazonSES {
 				}
 			}
 
-			if ( isset( $options['amazonses_autoupdate'] ) ) {
+			if ( $options['amazonses_autoupdate'] ) {
 				if ( ! wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
 					wp_schedule_event( time(), 'hourly', 'mailster_amazonses_cron' );
 				}
 			}
 
-			if ( function_exists( 'fsockopen' ) && isset( $options['amazonses_smtp'] ) && $options['amazonses_smtp'] ) {
+			if ( function_exists( 'fsockopen' ) && $options['amazonses_smtp'] ) {
 				$host = 'email-smtp.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com';
 				$port = $options['amazonses_secure'] == 'tls' ? 587 : 465;
 				$conn = @fsockopen( $host, $port, $errno, $errstr, 5 );

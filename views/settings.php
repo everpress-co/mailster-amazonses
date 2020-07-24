@@ -120,7 +120,7 @@
 <table class="form-table">
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Update Limits', 'mailster-amazonses' ); ?></th>
-		<td><label><input type="checkbox" name="mailster_options[amazonses_autoupdate]" value="1" <?php checked( mailster_option( 'amazonses_autoupdate' ), true ); ?>> <?php esc_html_e( 'auto update send limits (recommended)', 'mailster-amazonses' ); ?> </label></td>
+		<td><label><input type="hidden" name="mailster_options[amazonses_autoupdate]" value=""><input type="checkbox" name="mailster_options[amazonses_autoupdate]" value="1" <?php checked( mailster_option( 'amazonses_autoupdate' ), true ); ?>> <?php esc_html_e( 'auto update send limits (recommended)', 'mailster-amazonses' ); ?> </label></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Bounce Handling via', 'mailster-amazonses' ); ?></th>
