@@ -8,11 +8,11 @@
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Amazon AWS Access Key', 'mailster-amazonses' ); ?></th>
-		<td><input type="text" name="mailster_options[amazonses_access_key]" value="<?php echo esc_attr( mailster_option( 'amazonses_access_key' ) ); ?>" class="regular-text" placeholder="XXXXXXXXXXXXXXXXXXXX"></td>
+		<td><input type="text" name="mailster_options[amazonses_access_key]" value="<?php esc_attr_e( mailster_option( 'amazonses_access_key' ) ); ?>" class="regular-text" placeholder="XXXXXXXXXXXXXXXXXXXX"></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Amazon AWS Secret Key', 'mailster-amazonses' ); ?></th>
-		<td><input type="password" name="mailster_options[amazonses_secret_key]" value="<?php echo esc_attr( mailster_option( 'amazonses_secret_key' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
+		<td><input type="password" name="mailster_options[amazonses_secret_key]" value="<?php esc_attr_e( mailster_option( 'amazonses_secret_key' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Endpoint', 'mailster-amazonses' ); ?></th>
@@ -22,19 +22,23 @@
 			$current   = mailster_option( 'amazonses_endpoint' );
 			$endpoints = array(
 				'us-east-1'      => 'US East (N. Virginia)',
+				'us-east-2'      => 'US East (Ohio)',
 				'us-west-2'      => 'US West (Oregon)',
 				'ap-south-1'     => 'Asia Pacific (Mumbai)',
+				'ap-northeast-2' => 'Asia Pacific (Seoul)',
+				'ap-southeast-1' => 'Asia Pacific (Singapore)',
 				'ap-southeast-2' => 'Asia Pacific (Sydney)',
+				'ap-northeast-1' => 'Asia Pacific (Tokyo)',
 				'ca-central-1'   => 'Canada (Central)',
 				'eu-central-1'   => 'Europe (Frankfurt)',
 				'eu-west-1'      => 'Europe (Ireland)',
 				'eu-west-2'      => 'Europe (London)',
 				'sa-east-1'      => 'South America (São Paulo)',
 			);
-			foreach ( $endpoints as $endpoint => $name ) {
+			foreach ( $endpoints as $endpoint => $name ) :
 				?>
-				<option value="<?php echo esc_attr( $endpoint ); ?>" <?php selected( $current == $endpoint ); ?>><?php echo esc_html( $name . ' (' . $endpoint . ')' ); ?></option>
-			<?php } ?>
+				<option value="<?php esc_attr_e( $endpoint ); ?>" <?php selected( $current == $endpoint ); ?>><?php esc_html_e( $name . ' (' . $endpoint . ')' ); ?></option>
+			<?php endforeach; ?>
 		</select>
 		</td>
 	</tr>
@@ -46,7 +50,7 @@
 			<?php else : ?>
 			<span style="color:#D54E21">&#10006;</span> <?php esc_html_e( 'Your credentials are WRONG!', 'mailster-amazonses' ); ?>
 			<?php endif; ?>
-			<input type="hidden" name="mailster_options[amazonses_verified]" value="<?php echo esc_attr( $verified ); ?>">
+			<input type="hidden" name="mailster_options[amazonses_verified]" value="<?php esc_attr_e( $verified ); ?>">
 		</td>
 	</tr>
 </table>
@@ -104,11 +108,11 @@
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Amazon SES SMTP Username', 'mailster-amazonses' ); ?></th>
-		<td><input type="text" name="mailster_options[amazonses_smtp_user]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_user' ) ); ?>" class="regular-text" placeholder="XXXXXXXXXXXXXXXXXXXX"></td>
+		<td><input type="text" name="mailster_options[amazonses_smtp_user]" value="<?php esc_attr_e( mailster_option( 'amazonses_smtp_user' ) ); ?>" class="regular-text" placeholder="XXXXXXXXXXXXXXXXXXXX"></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Amazon SES SMTP Password', 'mailster-amazonses' ); ?></th>
-		<td><input type="password" name="mailster_options[amazonses_smtp_pwd]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_pwd' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
+		<td><input type="password" name="mailster_options[amazonses_smtp_pwd]" value="<?php esc_attr_e( mailster_option( 'amazonses_smtp_pwd' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Connection', 'mailster-amazonses' ); ?></th>
@@ -138,7 +142,7 @@
 				<?php $enpoint = add_query_arg( array( 'mailster_amazonsns' => $amazonsns_key ), home_url( '/' ) ); ?>
 				<?php $last_response = get_option( 'mailster_amazonsns_last_response' ); ?>
 			<p><strong><?php esc_html_e( 'Endpoint', 'mailster-amazonses' ); ?></strong></p>
-			<div class="<?php echo $last_response ? 'verified' : 'not-verified'; ?>"><a href="<?php echo esc_attr( $enpoint ); ?>" class="external"><code id="amazonsns-endpoint"><?php echo esc_attr( $enpoint ); ?></code></a> <a class="clipboard" data-clipboard-target="#amazonsns-endpoint"><?php esc_html_e( 'copy', 'mailster-amazonses' ); ?></a></div>
+			<div class="<?php echo $last_response ? 'verified' : 'not-verified'; ?>"><a href="<?php esc_attr_e( $enpoint ); ?>" class="external"><code id="amazonsns-endpoint"><?php esc_attr_e( $enpoint ); ?></code></a> <a class="clipboard" data-clipboard-target="#amazonsns-endpoint"><?php esc_html_e( 'copy', 'mailster-amazonses' ); ?></a></div>
 				<?php if ( $last_response ) : ?>
 				<p><strong><?php esc_html_e( 'Last Response', 'mailster-amazonses' ); ?></strong></p>
 				<textarea rows="10" cols="40" class="large-text code"><?php echo print_r( $last_response, true ); ?></textarea>
@@ -150,12 +154,12 @@
 
 </table>
 <?php else : ?>
-<input type="hidden" name="mailster_options[amazonses_smtp]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp' ) ); ?>">
-<input type="hidden" name="mailster_options[amazonses_smtp_user]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_user' ) ); ?>">
-<input type="hidden" name="mailster_options[amazonses_smtp_pwd]" value="<?php echo esc_attr( mailster_option( 'amazonses_smtp_pwd' ) ); ?>">
-<input type="hidden" name="mailster_options[amazonses_secure]" value="<?php echo esc_attr( mailster_option( 'amazonses_secure' ) ); ?>">
-<input type="hidden" name="mailster_options[amazonses_autoupdate]" value="<?php echo esc_attr( mailster_option( 'amazonses_autoupdate' ) ); ?>">
-<input type="hidden" name="mailster_options[amazonses_bouncehandling]" value="<?php echo esc_attr( mailster_option( 'amazonses_bouncehandling' ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_smtp]" value="<?php esc_attr_e( mailster_option( 'amazonses_smtp' ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_smtp_user]" value="<?php esc_attr_e( mailster_option( 'amazonses_smtp_user' ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_smtp_pwd]" value="<?php esc_attr_e( mailster_option( 'amazonses_smtp_pwd' ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_secure]" value="<?php esc_attr_e( mailster_option( 'amazonses_secure' ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_autoupdate]" value="<?php esc_attr_e( mailster_option( 'amazonses_autoupdate' ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_bouncehandling]" value="<?php esc_attr_e( mailster_option( 'amazonses_bouncehandling' ) ); ?>">
 	<?php if ( $verified ) : ?>
 	<table class="form-table">
 		<tr valign="top">
@@ -165,4 +169,4 @@
 	</table>
 	<?php endif; ?>
 <?php endif; ?>
-<input type="hidden" name="mailster_options[amazonses_key]" value="<?php echo esc_attr( mailster_option( 'amazonses_key', $amazonsns_key ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_key]" value="<?php esc_attr_e( mailster_option( 'amazonses_key', $amazonsns_key ) ); ?>">
