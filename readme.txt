@@ -3,7 +3,7 @@ Contributors: everpress
 Tags: amazon, ses, mailster, newsletter, mailsteresp
 Requires at least: 4.2
 Tested up to: 5.4
-Stable tag: 2.5
+Stable tag: 2.5.1
 Requires PHP: 5.6+
 License: GPLv2 or later
 Author: EverPress
@@ -26,6 +26,9 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 1. Option Interface.
 
 == Changelog ==
+
+= 2.5.1 =
+* fixed: respect 'Update Limits' options
 
 = 2.5 =
 * added additional 4 endpoints: Ohio, Seoul, Singapore, Tokyo

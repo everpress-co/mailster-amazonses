@@ -272,12 +272,11 @@ class MailsterAmazonSES {
 
 					$options['amazonses_verified'] = true;
 
-					if ( $limits ) {
+					if ( $limits && $options['amazonses_autoupdate'] ) {
 						$options['send_limit']  = $limits['limit'];
 						$options['send_period'] = 24;
-						if ( $options['amazonses_autoupdate'] ) {
-							$options['send_delay'] = $limits['rate'];
-						}
+						$options['send_delay']  = $limits['rate'];
+
 						update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
 						update_option( '_transient__mailster_send_period', $limits['sent'] );
 
