@@ -1,4 +1,4 @@
-<?php $amazonsns_key = mailster_option( 'amazonses_key', md5( uniqid() ) ); ?>
+<?php $amazonses_key = mailster_option( 'amazonses_key', md5( uniqid() ) ); ?>
 <table class="form-table">
 	<tr valign="top">
 		<th scope="row">&nbsp;</th>
@@ -15,27 +15,12 @@
 		<td><input type="password" name="mailster_options[amazonses_secret_key]" value="<?php esc_attr_e( mailster_option( 'amazonses_secret_key' ) ); ?>" class="regular-text" autocomplete="new-password"></td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php esc_html_e( 'Endpoint', 'mailster-amazonses' ); ?></th>
+		<th scope="row"><?php esc_html_e( 'Region', 'mailster-amazonses' ); ?></th>
 		<td>
 		<select name="mailster_options[amazonses_endpoint]" >
 			<?php
-			$current   = mailster_option( 'amazonses_endpoint' );
-			$endpoints = array(
-				'us-east-1'      => 'US East (N. Virginia)',
-				'us-east-2'      => 'US East (Ohio)',
-				'us-west-2'      => 'US West (Oregon)',
-				'ap-south-1'     => 'Asia Pacific (Mumbai)',
-				'ap-northeast-2' => 'Asia Pacific (Seoul)',
-				'ap-southeast-1' => 'Asia Pacific (Singapore)',
-				'ap-southeast-2' => 'Asia Pacific (Sydney)',
-				'ap-northeast-1' => 'Asia Pacific (Tokyo)',
-				'ca-central-1'   => 'Canada (Central)',
-				'eu-central-1'   => 'Europe (Frankfurt)',
-				'eu-west-1'      => 'Europe (Ireland)',
-				'eu-west-2'      => 'Europe (London)',
-				'sa-east-1'      => 'South America (São Paulo)',
-			);
-			foreach ( $endpoints as $endpoint => $name ) :
+			$current = mailster_option( 'amazonses_endpoint' );
+			foreach ( $this->endpoints as $endpoint => $name ) :
 				?>
 				<option value="<?php esc_attr_e( $endpoint ); ?>" <?php selected( $current == $endpoint ); ?>><?php esc_html_e( $name . ' (' . $endpoint . ')' ); ?></option>
 			<?php endforeach; ?>
@@ -139,7 +124,7 @@
 			<?php else : ?>
 			<p class="description"><?php esc_html_e( 'Mailster can handle bounces via AmazonSNS. This is the recommended and most reliable way and requires some setup.', 'mailster-amazonses' ); ?></p>
 			<p class="description"><?php printf( esc_html__( 'Read more about the setup process %s.', 'mailster-amazonses' ), '<a href="https://kb.mailster.co/handling-bounces-with-amazonsns/" class="external">' . esc_html__( 'here', 'mailster-amazonses' ) . '</a>' ); ?></p>
-				<?php $enpoint = add_query_arg( array( 'mailster_amazonsns' => $amazonsns_key ), home_url( '/' ) ); ?>
+				<?php $enpoint = add_query_arg( array( 'mailster_amazonsns' => $amazonses_key ), home_url( '/' ) ); ?>
 				<?php $last_response = get_option( 'mailster_amazonsns_last_response' ); ?>
 			<p><strong><?php esc_html_e( 'Endpoint', 'mailster-amazonses' ); ?></strong></p>
 			<div class="<?php echo $last_response ? 'verified' : 'not-verified'; ?>"><a href="<?php esc_attr_e( $enpoint ); ?>" class="external"><code id="amazonsns-endpoint"><?php esc_attr_e( $enpoint ); ?></code></a> <a class="clipboard" data-clipboard-target="#amazonsns-endpoint"><?php esc_html_e( 'copy', 'mailster-amazonses' ); ?></a></div>
@@ -169,4 +154,4 @@
 	</table>
 	<?php endif; ?>
 <?php endif; ?>
-<input type="hidden" name="mailster_options[amazonses_key]" value="<?php esc_attr_e( mailster_option( 'amazonses_key', $amazonsns_key ) ); ?>">
+<input type="hidden" name="mailster_options[amazonses_key]" value="<?php echo esc_attr( $amazonses_key ); ?>">

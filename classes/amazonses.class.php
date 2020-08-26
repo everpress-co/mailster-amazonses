@@ -5,6 +5,21 @@ class MailsterAmazonSES {
 	private $plugin_path;
 	private $plugin_url;
 	private $aws;
+	private $endpoints = array(
+		'us-east-1'      => 'US East (N. Virginia)',
+		'us-east-2'      => 'US East (Ohio)',
+		'us-west-2'      => 'US West (Oregon)',
+		'ap-south-1'     => 'Asia Pacific (Mumbai)',
+		'ap-northeast-2' => 'Asia Pacific (Seoul)',
+		'ap-southeast-1' => 'Asia Pacific (Singapore)',
+		'ap-southeast-2' => 'Asia Pacific (Sydney)',
+		'ap-northeast-1' => 'Asia Pacific (Tokyo)',
+		'ca-central-1'   => 'Canada (Central)',
+		'eu-central-1'   => 'Europe (Frankfurt)',
+		'eu-west-1'      => 'Europe (Ireland)',
+		'eu-west-2'      => 'Europe (London)',
+		'sa-east-1'      => 'South America (São Paulo)',
+	);
 
 
 	public function __construct() {
@@ -248,13 +263,23 @@ class MailsterAmazonSES {
 		// only if delivery method is amazonses
 		if ( $options['deliverymethod'] == 'amazonses' ) {
 
-			if ( 'amazonsns' != $options['amazonses_bouncehandling'] ) {
-				delete_option( 'mailster_amazonsns_last_response' );
-				unset( $options['amazonses_key'] );
-			}
-
 			// only on the settings page
 			if ( isset( $_POST['mailster_options'] ) ) {
+
+				if ( 'amazonsns' != $options['amazonses_bouncehandling'] ) {
+					delete_option( 'mailster_amazonsns_last_response' );
+					unset( $options['amazonses_key'] );
+				}
+
+				if ( isset( $options['amazonses_key'] ) && empty( $options['amazonses_key'] ) ) {
+					delete_option( 'mailster_amazonsns_last_response' );
+					unset( $options['amazonses_key'] );
+				}
+
+				if ( mailster_option( 'amazonses_endpoint' ) != $options['amazonses_endpoint'] ) {
+					delete_option( 'mailster_amazonsns_last_response' );
+					$options['amazonses_key'] = md5( uniqid() );
+				}
 
 				remove_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
 				mailster_update_option( 'amazonses_access_key', $options['amazonses_access_key'], true );
@@ -324,13 +349,21 @@ class MailsterAmazonSES {
 
 	private function handle_sns() {
 
-		if ( 'amazonsns' == mailster_option( 'amazonses_bouncehandling' ) && mailster_option( 'amazonses_key' ) == $_GET['mailster_amazonsns'] && $data = file_get_contents( 'php://input' ) ) {
+		if ( 'amazonsns' == mailster_option( 'amazonses_bouncehandling' ) && mailster_option( 'amazonses_key' ) == $_GET['mailster_amazonsns'] ) {
 
+			if ( ! ( $data = file_get_contents( 'php://input' ) ) ) {
+				wp_die( 'This page handles the Bounces and messages from Amazon SNS for Mailster.', 'Mailster Amazon SNS Endpoint' );
+			}
 			$obj = json_decode( $data );
 
 			switch ( $obj->Type ) {
 
 				case 'SubscriptionConfirmation':
+					if ( false === strpos( $obj->TopicArn, mailster_option( 'amazonses_endpoint' ) ) ) {
+						mailster_notice( sprintf( __( 'The SNS Topic %1$s was not created in the correct region. Please create a new topic in the region %2$s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>', '"' . $this->endpoints[ mailster_option( 'amazonses_endpoint' ) ] . '"' ), 'error', false, 'amazonses-SubscriptionConfirmation' );
+						return;
+					}
+
 					$response = wp_remote_get( $obj->SubscribeURL );
 					$code     = wp_remote_retrieve_response_code( $response );
 					$body     = (object) simplexml_load_string( wp_remote_retrieve_body( $response ) );
@@ -394,8 +427,8 @@ class MailsterAmazonSES {
 			}
 
 			update_option( 'mailster_amazonsns_last_response', $obj, 'no' );
+			exit;
 
-			wp_die( 'This page handles the Bounces and messages from Amazon SNS for Mailster.', 'Mailster Amazon SNS Endpoint' );
 		}
 
 	}
