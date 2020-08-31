@@ -392,6 +392,9 @@ class MailsterAmazonSES {
 					if ( $headers['X-Mailster-ID'] != mailster_option( 'ID' ) ) {
 						break;
 					}
+					if ( ! isset( $headers['X-Mailster'] ) ) {
+						break;
+					}
 					$subscriber = mailster( 'subscribers' )->get_by_hash( $headers['X-Mailster'], false );
 					if ( ! $subscriber ) {
 						break;
@@ -410,9 +413,31 @@ class MailsterAmazonSES {
 								case 'Permanent':
 									mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
 									break;
+								case 'Undetermined':
+									break;
 								case 'Transient':
+									switch ( $message->bounce->bounceSubType ) {
+										// Amazon SES received a general bounce. You may be able to successfully send to this recipient in the future.
+										case 'General':
+											break;
+										// Amazon SES received a mailbox full bounce. You may be able to successfully send to this recipient in the future.
+										case 'MailboxFull':
+											break;
+										// Amazon SES received a message too large bounce. You may be able to successfully send to this recipient if you reduce the size of the message.
+										case 'MessageTooLarge':
+											break;
+										// Amazon SES received a content rejected bounce. You may be able to successfully send to this recipient if you change the content of the message.
+										case 'ContentRejected':
+											break;
+										// Amazon SES received an attachment rejected bounce. You may be able to successfully send to this recipient if you remove or change the attachment.
+										case 'AttachmentRejected':
+											break;
+										default;
+											mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, false, $status );
+											break;
+									}
+									break;
 								default:
-									mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, false, $status );
 									break;
 							}
 							break;

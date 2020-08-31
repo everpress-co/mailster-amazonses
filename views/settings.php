@@ -78,7 +78,7 @@
 	<?php endif; ?>
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'send via', 'mailster-amazonses' ); ?></th>
-		<td><select class="mailster-amazonses-api" name="mailster_options[amazonses_smtp]">
+		<td><select name="mailster_options[amazonses_smtp]" class="mailster-amazonses-api">
 			<option value="0" <?php selected( ! mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'WEB API (recommended)', 'mailster-amazonses' ); ?></option>
 			<option value="1" <?php selected( mailster_option( 'amazonses_smtp' ) ); ?>><?php esc_html_e( 'SMTP API', 'mailster-amazonses' ); ?></option>
 		</select>
@@ -114,7 +114,7 @@
 	<tr valign="top">
 		<th scope="row"><?php esc_html_e( 'Bounce Handling via', 'mailster-amazonses' ); ?></th>
 		<td>
-		<select name="mailster_options[amazonses_bouncehandling]" class="amazonses_bouncehandling">
+		<select name="mailster_options[amazonses_bouncehandling]" class="mailster-amazonses-bouncehandling">
 			<option value="" <?php selected( ! mailster_option( 'amazonses_bouncehandling' ) ); ?>>Mailster's Bounce Settings</option>
 			<option value="amazonsns" <?php selected( mailster_option( 'amazonses_bouncehandling' ), 'amazonsns' ); ?>>AmazonSNS</option>
 		</select>
@@ -130,7 +130,7 @@
 			<div class="<?php echo $last_response ? 'verified' : 'not-verified'; ?>"><a href="<?php esc_attr_e( $enpoint ); ?>" class="external"><code id="amazonsns-endpoint"><?php esc_attr_e( $enpoint ); ?></code></a> <a class="clipboard" data-clipboard-target="#amazonsns-endpoint"><?php esc_html_e( 'copy', 'mailster-amazonses' ); ?></a></div>
 				<?php if ( $last_response ) : ?>
 				<p><strong><?php esc_html_e( 'Last Response', 'mailster-amazonses' ); ?></strong></p>
-				<textarea rows="10" cols="40" class="large-text code"><?php echo print_r( $last_response, true ); ?></textarea>
+				<textarea rows="10" cols="40" class="large-text code"><?php print_r( $last_response ); ?></textarea>
 			<?php endif; ?>
 			<?php endif; ?>
 		</div>

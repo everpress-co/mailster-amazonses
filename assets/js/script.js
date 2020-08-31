@@ -1,17 +1,23 @@
 jQuery(document).ready(function ($) {
 
-	$('.mailster-amazonses-api').on('change', function () {
+	$('#subtab-amazonses')
+		.on('change', '.mailster-amazonses-api', function () {
 
-		(parseInt($(this).val(), 10)) ?
-		$('.amazonses-tab-smtp').slideDown(): $('.amazonses-tab-smtp').slideUp();
+			if ($(this).val()) {
+				$('.amazonses-tab-smtp').slideDown();
+			} else {
+				$('.amazonses-tab-smtp').slideUp();
+			}
 
-	});
-	$('.amazonses_bouncehandling').on('change', function () {
+		})
+		.on('change', '.mailster-amazonses-bouncehandling', function () {
 
-		(!$(this).val()) ?
-		$('.amazonsns-options').slideUp(): $('.amazonsns-options').slideDown();
+			if ($(this).val()) {
+				$('.amazonsns-options').slideDown();
+			} else {
+				$('.amazonsns-options').slideUp();
+			}
 
-	});
-
+		});
 
 });
