@@ -3,7 +3,7 @@ jQuery(document).ready(function ($) {
 	$('#subtab-amazonses')
 		.on('change', '.mailster-amazonses-api', function () {
 
-			if ($(this).val()) {
+			if ($(this).val() == 1) {
 				$('.amazonses-tab-smtp').slideDown();
 			} else {
 				$('.amazonses-tab-smtp').slideUp();
