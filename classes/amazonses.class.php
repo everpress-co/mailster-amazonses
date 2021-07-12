@@ -486,7 +486,7 @@ class MailsterAmazonSES {
 	public function activate( $network_wide ) {
 
 		if ( function_exists( 'mailster' ) ) {
-			mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-amazonses' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', false, 'delivery_method' );
+			mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-amazonses' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', 360, 'delivery_method' );
 
 			if ( ! wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
 				wp_schedule_event( time(), 'hourly', 'mailster_amazonses_cron' );
@@ -514,7 +514,7 @@ class MailsterAmazonSES {
 		if ( function_exists( 'mailster' ) ) {
 			if ( mailster_option( 'deliverymethod' ) == 'amazonses' ) {
 				mailster_update_option( 'deliverymethod', 'simple' );
-				mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-amazonses' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', false, 'delivery_method' );
+				mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-amazonses' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', 360, 'delivery_method' );
 			}
 
 			if ( $timestamp = wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
