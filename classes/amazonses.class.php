@@ -432,6 +432,7 @@ class MailsterAmazonSES {
 									switch ( $message->bounce->bounceSubType ) {
 										// Amazon SES received a general bounce. You may be able to successfully send to this recipient in the future.
 										case 'General':
+											mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
 											break;
 										// Amazon SES received a mailbox full bounce. You may be able to successfully send to this recipient in the future.
 										case 'MailboxFull':
@@ -446,7 +447,7 @@ class MailsterAmazonSES {
 										case 'AttachmentRejected':
 											break;
 										default;
-											mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, false, $status );
+											mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
 											break;
 									}
 									break;
