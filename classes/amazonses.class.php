@@ -412,7 +412,16 @@ class MailsterAmazonSES {
 					if ( ! $subscriber ) {
 						break;
 					}
-					$campaign = mailster( 'campaigns' )->get( (int) $headers['X-Mailster-Campaign'] );
+					$campaign_id    = $headers['X-Mailster-Campaign'];
+					$campaign_index = null;
+
+					// get the campaign index
+					if ( false !== strpos( $campaign_id, '-' ) ) {
+						$campaign_index = absint( strrchr( $campaign_id, '-' ) );
+						$campaign_id    = absint( $campaign_id );
+					}
+
+					$campaign = mailster( 'campaigns' )->get( $campaign_id );
 
 					$campaign_id = $campaign ? $campaign->ID : null;
 
@@ -424,7 +433,11 @@ class MailsterAmazonSES {
 							}
 							switch ( $message->bounce->bounceType ) {
 								case 'Permanent':
-									mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+									if ( version_compare( MAILSTER_VERSION, '3.0', '<' ) ) {
+										mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+									} else {
+										mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status, $campaign_index );
+									}
 									break;
 								case 'Undetermined':
 									break;
@@ -432,7 +445,11 @@ class MailsterAmazonSES {
 									switch ( $message->bounce->bounceSubType ) {
 										// Amazon SES received a general bounce. You may be able to successfully send to this recipient in the future.
 										case 'General':
-											mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+											if ( version_compare( MAILSTER_VERSION, '3.0', '<' ) ) {
+												mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+											} else {
+												mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status, $campaign_index );
+											}
 											break;
 										// Amazon SES received a mailbox full bounce. You may be able to successfully send to this recipient in the future.
 										case 'MailboxFull':
@@ -447,7 +464,11 @@ class MailsterAmazonSES {
 										case 'AttachmentRejected':
 											break;
 										default;
-											mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+											if ( version_compare( MAILSTER_VERSION, '3.0', '<' ) ) {
+												mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
+											} else {
+												mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status, $campaign_index );
+											}
 											break;
 									}
 									break;
@@ -457,7 +478,11 @@ class MailsterAmazonSES {
 							break;
 						case 'Complaint':
 							$status = '[Complaint] ' . $message->complaint->complaintFeedbackType;
-							mailster( 'subscribers' )->unsubscribe( $subscriber->ID, $campaign_id, 'complain' );
+							if ( version_compare( MAILSTER_VERSION, '3.0', '<' ) ) {
+								mailster( 'subscribers' )->unsubscribe( $subscriber->ID, $campaign_id, 'complain' );
+							} else {
+								mailster( 'subscribers' )->unsubscribe( $subscriber->ID, $campaign_id, 'complain', $campaign_index );
+							}
 							break;
 						case 'Delivery':
 							break;
