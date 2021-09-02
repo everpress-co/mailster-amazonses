@@ -136,7 +136,6 @@
 		</div>
 		</td>
 	</tr>
-
 </table>
 <?php else : ?>
 <input type="hidden" name="mailster_options[amazonses_smtp]" value="<?php esc_attr_e( mailster_option( 'amazonses_smtp' ) ); ?>">
