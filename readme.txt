@@ -6,8 +6,6 @@ Tested up to: 5.9
 Stable tag: 2.10
 Requires PHP: 5.6+
 License: GPLv2 or later
-Author: EverPress
-Author URI: https://mailster.co
 
 == Description ==
 

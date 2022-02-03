@@ -1,0 +1,18 @@
+name: Convert Readme
+on:
+  push:
+    branches:
+      - 'develop'
+    paths:
+      - 'readme.txt'
+jobs:
+  tag:
+    name: Convert Readme
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Convert Readme
+        uses: evrpress/action-wp2md@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
