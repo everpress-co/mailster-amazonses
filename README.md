@@ -1,6 +1,6 @@
 # Mailster AmazonSES Integration
 
-Contributors: everpress  
+Contributors: everpress, xaverb  
 Tags: amazon, ses, mailster, newsletter, mailsteresp  
 Requires at least: 4.2  
 Tested up to: 6.0  
@@ -43,7 +43,7 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 ### 2.8
 
 -   added: 4 new regions: California, Paris, Stockholm, Bahrain
--   better formating for error messages
+-   better formatting for error messages
 
 ### 2.7
 
@@ -125,8 +125,6 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 ### 1.0
 
 -   initial release
-
-## Upgrade Notice
 
 ## Additional Info
 
