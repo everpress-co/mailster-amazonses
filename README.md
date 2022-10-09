@@ -6,13 +6,13 @@ Requires at least: 4.2
 Tested up to: 6.0  
 Stable tag: 2.10  
 Requires PHP: 5.6+  
-License: GPLv2 or later
-Author: EverPress
+License: GPLv2 or later  
+Author: EverPress  
 Author URI: https://mailster.co
 
 ## Description
 
-Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme).
+Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=readme&utm_term=AmazonSES).
 
 ## Installation
 
@@ -128,4 +128,4 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 
 ## Additional Info
 
-> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme)
+> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=readme&utm_term=AmazonSES)
