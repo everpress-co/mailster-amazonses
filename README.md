@@ -1,18 +1,18 @@
 # Mailster AmazonSES Integration
 
-Contributors: everpress  
+Contributors: everpress, xaverb  
 Tags: amazon, ses, mailster, newsletter, mailsteresp  
 Requires at least: 4.2  
 Tested up to: 6.0  
-Stable tag: 2.10  
+Stable tag: 2.11.0  
 Requires PHP: 5.6+  
-License: GPLv2 or later
-Author: EverPress
+License: GPLv2 or later  
+Author: EverPress  
 Author URI: https://mailster.co
 
 ## Description
 
-Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme).
+Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=readme&utm_term=AmazonSES).
 
 ## Installation
 
@@ -27,6 +27,10 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 ![Option Interface.](https://ps.w.org/mailster-amazonses/assets/screenshot-1.png)
 
 ## Changelog
+
+### 2.11.0
+
+-   added missing regions
 
 ### 2.10
 
@@ -43,7 +47,7 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 ### 2.8
 
 -   added: 4 new regions: California, Paris, Stockholm, Bahrain
--   better formating for error messages
+-   better formatting for error messages
 
 ### 2.7
 
@@ -126,8 +130,6 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 
 -   initial release
 
-## Upgrade Notice
-
 ## Additional Info
 
-> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme)
+> This Plugin requires [Mailster Newsletter Plugin for WordPress](https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=readme&utm_term=AmazonSES)

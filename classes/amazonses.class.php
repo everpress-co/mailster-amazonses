@@ -11,7 +11,10 @@ class MailsterAmazonSES {
 		'us-west-1'      => 'US West (N. California)',
 		'us-west-2'      => 'US West (Oregon)',
 
+		'af-south-1'     => 'Africa (Cape Town)',
+
 		'ap-south-1'     => 'Asia Pacific (Mumbai)',
+		'ap-northeast-3' => 'Asia Pacific (Osaka)',
 		'ap-northeast-2' => 'Asia Pacific (Seoul)',
 		'ap-southeast-1' => 'Asia Pacific (Singapore)',
 		'ap-southeast-2' => 'Asia Pacific (Sydney)',
@@ -22,6 +25,7 @@ class MailsterAmazonSES {
 		'eu-central-1'   => 'Europe (Frankfurt)',
 		'eu-west-1'      => 'Europe (Ireland)',
 		'eu-west-2'      => 'Europe (London)',
+		'eu-south-1'     => 'Europe (Milan)',
 		'eu-west-3'      => 'Europe (Paris)',
 		'eu-north-1'     => 'Europe (Stockholm)',
 
@@ -502,7 +506,7 @@ class MailsterAmazonSES {
 		?>
 		<div class="error">
 			<p>
-			<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=plugin">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
+			<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=plugin&utm_term=AmazonSES">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
 			</p>
 		</div>
 		<?php
