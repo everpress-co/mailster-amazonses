@@ -5,6 +5,6 @@ namespace Mailster\Aws3\GuzzleHttp\Exception;
 /**
  * Exception when a server error is encountered (5xx codes)
  */
-class ServerException extends \Mailster\Aws3\GuzzleHttp\Exception\BadResponseException
+class ServerException extends BadResponseException
 {
 }

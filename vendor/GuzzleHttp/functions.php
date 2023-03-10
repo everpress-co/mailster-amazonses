@@ -16,14 +16,14 @@ use Mailster\Aws3\GuzzleHttp\Handler\StreamHandler;
  */
 function uri_template($template, array $variables)
 {
-    if (extension_loaded('uri_template')) {
+    if (\extension_loaded('uri_template')) {
         // @codeCoverageIgnoreStart
-        return \uri_template($template, $variables);
+        return \Mailster\Aws3\uri_template($template, $variables);
         // @codeCoverageIgnoreEnd
     }
     static $uriTemplate;
     if (!$uriTemplate) {
-        $uriTemplate = new \Mailster\Aws3\GuzzleHttp\UriTemplate();
+        $uriTemplate = new UriTemplate();
     }
     return $uriTemplate->expand($template, $variables);
 }
@@ -37,22 +37,22 @@ function uri_template($template, array $variables)
  */
 function describe_type($input)
 {
-    switch (gettype($input)) {
+    switch (\gettype($input)) {
         case 'object':
-            return 'object(' . get_class($input) . ')';
+            return 'object(' . \get_class($input) . ')';
         case 'array':
-            return 'array(' . count($input) . ')';
+            return 'array(' . \count($input) . ')';
         default:
-            ob_start();
-            var_dump($input);
+            \ob_start();
+            \var_dump($input);
             // normalize float vs double
-            return str_replace('double(', 'float(', rtrim(ob_get_clean()));
+            return \str_replace('double(', 'float(', \rtrim(\ob_get_clean()));
     }
 }
 /**
  * Parses an array of header lines into an associative array of headers.
  *
- * @param array $lines Header lines array of strings in the following
+ * @param iterable $lines Header lines array of strings in the following
  *                     format: "Name: Value"
  * @return array
  */
@@ -60,8 +60,8 @@ function headers_from_lines($lines)
 {
     $headers = [];
     foreach ($lines as $line) {
-        $parts = explode(':', $line, 2);
-        $headers[trim($parts[0])][] = isset($parts[1]) ? trim($parts[1]) : null;
+        $parts = \explode(':', $line, 2);
+        $headers[\trim($parts[0])][] = isset($parts[1]) ? \trim($parts[1]) : null;
     }
     return $headers;
 }
@@ -74,33 +74,33 @@ function headers_from_lines($lines)
  */
 function debug_resource($value = null)
 {
-    if (is_resource($value)) {
+    if (\is_resource($value)) {
         return $value;
-    } elseif (defined('STDOUT')) {
-        return STDOUT;
+    } elseif (\defined('STDOUT')) {
+        return \STDOUT;
     }
-    return fopen('php://output', 'w');
+    return \fopen('php://output', 'w');
 }
 /**
  * Chooses and creates a default handler to use based on the environment.
  *
  * The returned handler is not wrapped by any default middlewares.
  *
- * @throws \RuntimeException if no viable Handler is available.
  * @return callable Returns the best handler for the given system.
+ * @throws \RuntimeException if no viable Handler is available.
  */
 function choose_handler()
 {
     $handler = null;
-    if (function_exists('curl_multi_exec') && function_exists('curl_exec')) {
-        $handler = \Mailster\Aws3\GuzzleHttp\Handler\Proxy::wrapSync(new \Mailster\Aws3\GuzzleHttp\Handler\CurlMultiHandler(), new \Mailster\Aws3\GuzzleHttp\Handler\CurlHandler());
-    } elseif (function_exists('curl_exec')) {
-        $handler = new \Mailster\Aws3\GuzzleHttp\Handler\CurlHandler();
-    } elseif (function_exists('curl_multi_exec')) {
-        $handler = new \Mailster\Aws3\GuzzleHttp\Handler\CurlMultiHandler();
+    if (\function_exists('curl_multi_exec') && \function_exists('curl_exec')) {
+        $handler = Proxy::wrapSync(new CurlMultiHandler(), new CurlHandler());
+    } elseif (\function_exists('curl_exec')) {
+        $handler = new CurlHandler();
+    } elseif (\function_exists('curl_multi_exec')) {
+        $handler = new CurlMultiHandler();
     }
-    if (ini_get('allow_url_fopen')) {
-        $handler = $handler ? \Mailster\Aws3\GuzzleHttp\Handler\Proxy::wrapStreaming($handler, new \Mailster\Aws3\GuzzleHttp\Handler\StreamHandler()) : new \Mailster\Aws3\GuzzleHttp\Handler\StreamHandler();
+    if (\ini_get('allow_url_fopen')) {
+        $handler = $handler ? Proxy::wrapStreaming($handler, new StreamHandler()) : new StreamHandler();
     } elseif (!$handler) {
         throw new \RuntimeException('GuzzleHttp requires cURL, the ' . 'allow_url_fopen ini setting, or a custom HTTP handler.');
     }
@@ -115,11 +115,11 @@ function default_user_agent()
 {
     static $defaultAgent = '';
     if (!$defaultAgent) {
-        $defaultAgent = 'GuzzleHttp/' . \Mailster\Aws3\GuzzleHttp\Client::VERSION;
-        if (extension_loaded('curl') && function_exists('curl_version')) {
+        $defaultAgent = 'GuzzleHttp/' . Client::VERSION;
+        if (\extension_loaded('curl') && \function_exists('curl_version')) {
             $defaultAgent .= ' curl/' . \curl_version()['version'];
         }
-        $defaultAgent .= ' PHP/' . PHP_VERSION;
+        $defaultAgent .= ' PHP/' . \PHP_VERSION;
     }
     return $defaultAgent;
 }
@@ -160,14 +160,14 @@ function default_ca_bundle()
     if ($cached) {
         return $cached;
     }
-    if ($ca = ini_get('openssl.cafile')) {
+    if ($ca = \ini_get('openssl.cafile')) {
         return $cached = $ca;
     }
-    if ($ca = ini_get('curl.cainfo')) {
+    if ($ca = \ini_get('curl.cainfo')) {
         return $cached = $ca;
     }
     foreach ($cafiles as $filename) {
-        if (file_exists($filename)) {
+        if (\file_exists($filename)) {
             return $cached = $filename;
         }
     }
@@ -198,8 +198,8 @@ EOT
 function normalize_header_keys(array $headers)
 {
     $result = [];
-    foreach (array_keys($headers) as $key) {
-        $result[strtolower($key)] = $key;
+    foreach (\array_keys($headers) as $key) {
+        $result[\strtolower($key)] = $key;
     }
     return $result;
 }
@@ -224,33 +224,33 @@ function normalize_header_keys(array $headers)
  */
 function is_host_in_noproxy($host, array $noProxyArray)
 {
-    if (strlen($host) === 0) {
+    if (\strlen($host) === 0) {
         throw new \InvalidArgumentException('Empty host provided');
     }
     // Strip port if present.
-    if (strpos($host, ':')) {
-        $host = explode($host, ':', 2)[0];
+    if (\strpos($host, ':')) {
+        $host = \explode($host, ':', 2)[0];
     }
     foreach ($noProxyArray as $area) {
         // Always match on wildcards.
         if ($area === '*') {
-            return true;
+            return \true;
         } elseif (empty($area)) {
             // Don't match on empty values.
             continue;
         } elseif ($area === $host) {
             // Exact matches.
-            return true;
+            return \true;
         } else {
             // Special match if the area when prefixed with ".". Remove any
             // existing leading "." and add a new leading ".".
-            $area = '.' . ltrim($area, '.');
-            if (substr($host, -strlen($area)) === $area) {
-                return true;
+            $area = '.' . \ltrim($area, '.');
+            if (\substr($host, -\strlen($area)) === $area) {
+                return \true;
             }
         }
     }
-    return false;
+    return \false;
 }
 /**
  * Wrapper for json_decode that throws when an error occurs.
@@ -262,14 +262,14 @@ function is_host_in_noproxy($host, array $noProxyArray)
  * @param int    $options Bitmask of JSON decode options.
  *
  * @return mixed
- * @throws \InvalidArgumentException if the JSON cannot be decoded.
+ * @throws Exception\InvalidArgumentException if the JSON cannot be decoded.
  * @link http://www.php.net/manual/en/function.json-decode.php
  */
-function json_decode($json, $assoc = false, $depth = 512, $options = 0)
+function json_decode($json, $assoc = \false, $depth = 512, $options = 0)
 {
     $data = \json_decode($json, $assoc, $depth, $options);
-    if (JSON_ERROR_NONE !== json_last_error()) {
-        throw new \InvalidArgumentException('json_decode error: ' . json_last_error_msg());
+    if (\JSON_ERROR_NONE !== \json_last_error()) {
+        throw new Exception\InvalidArgumentException('json_decode error: ' . \json_last_error_msg());
     }
     return $data;
 }
@@ -281,14 +281,14 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
  * @param int    $depth   Set the maximum depth. Must be greater than zero.
  *
  * @return string
- * @throws \InvalidArgumentException if the JSON cannot be encoded.
+ * @throws Exception\InvalidArgumentException if the JSON cannot be encoded.
  * @link http://www.php.net/manual/en/function.json-encode.php
  */
 function json_encode($value, $options = 0, $depth = 512)
 {
     $json = \json_encode($value, $options, $depth);
-    if (JSON_ERROR_NONE !== json_last_error()) {
-        throw new \InvalidArgumentException('json_encode error: ' . json_last_error_msg());
+    if (\JSON_ERROR_NONE !== \json_last_error()) {
+        throw new Exception\InvalidArgumentException('json_encode error: ' . \json_last_error_msg());
     }
     return $json;
 }

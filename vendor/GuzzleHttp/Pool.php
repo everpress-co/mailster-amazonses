@@ -2,11 +2,12 @@
 
 namespace Mailster\Aws3\GuzzleHttp;
 
+use Mailster\Aws3\GuzzleHttp\Promise\EachPromise;
+use Mailster\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use Mailster\Aws3\GuzzleHttp\Promise\PromisorInterface;
 use Mailster\Aws3\Psr\Http\Message\RequestInterface;
-use Mailster\Aws3\GuzzleHttp\Promise\EachPromise;
 /**
- * Sends and iterator of requests concurrently using a capped pool size.
+ * Sends an iterator of requests concurrently using a capped pool size.
  *
  * The pool will read from an iterator until it is cancelled or until the
  * iterator is consumed. When a request is yielded, the request is sent after
@@ -16,7 +17,7 @@ use Mailster\Aws3\GuzzleHttp\Promise\EachPromise;
  * "request_options" array that should be merged on top of any existing
  * options, and the function MUST then return a wait-able promise.
  */
-class Pool implements \Mailster\Aws3\GuzzleHttp\Promise\PromisorInterface
+class Pool implements PromisorInterface
 {
     /** @var EachPromise */
     private $each;
@@ -30,7 +31,7 @@ class Pool implements \Mailster\Aws3\GuzzleHttp\Promise\PromisorInterface
      *     - fulfilled: (callable) Function to invoke when a request completes.
      *     - rejected: (callable) Function to invoke when a request is rejected.
      */
-    public function __construct(\Mailster\Aws3\GuzzleHttp\ClientInterface $client, $requests, array $config = [])
+    public function __construct(ClientInterface $client, $requests, array $config = [])
     {
         // Backwards compatibility.
         if (isset($config['pool_size'])) {
@@ -49,15 +50,20 @@ class Pool implements \Mailster\Aws3\GuzzleHttp\Promise\PromisorInterface
             foreach ($iterable as $key => $rfn) {
                 if ($rfn instanceof RequestInterface) {
                     (yield $key => $client->sendAsync($rfn, $opts));
-                } elseif (is_callable($rfn)) {
+                } elseif (\is_callable($rfn)) {
                     (yield $key => $rfn($opts));
                 } else {
                     throw new \InvalidArgumentException('Each value yielded by ' . 'the iterator must be a Psr7\\Http\\Message\\RequestInterface ' . 'or a callable that returns a promise that fulfills ' . 'with a Psr7\\Message\\Http\\ResponseInterface object.');
                 }
             }
         };
-        $this->each = new \Mailster\Aws3\GuzzleHttp\Promise\EachPromise($requests(), $config);
+        $this->each = new EachPromise($requests(), $config);
     }
+    /**
+     * Get promise
+     *
+     * @return PromiseInterface
+     */
     public function promise()
     {
         return $this->each->promise();
@@ -79,16 +85,21 @@ class Pool implements \Mailster\Aws3\GuzzleHttp\Promise\PromisorInterface
      *               in the same order that the requests were sent.
      * @throws \InvalidArgumentException if the event format is incorrect.
      */
-    public static function batch(\Mailster\Aws3\GuzzleHttp\ClientInterface $client, $requests, array $options = [])
+    public static function batch(ClientInterface $client, $requests, array $options = [])
     {
         $res = [];
         self::cmpCallback($options, 'fulfilled', $res);
         self::cmpCallback($options, 'rejected', $res);
         $pool = new static($client, $requests, $options);
         $pool->promise()->wait();
-        ksort($res);
+        \ksort($res);
         return $res;
     }
+    /**
+     * Execute callback(s)
+     *
+     * @return void
+     */
     private static function cmpCallback(array &$options, $name, array &$results)
     {
         if (!isset($options[$name])) {

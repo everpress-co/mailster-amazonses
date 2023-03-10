@@ -17,13 +17,13 @@ final class TransferStats
     private $handlerStats;
     private $handlerErrorData;
     /**
-     * @param RequestInterface  $request          Request that was sent.
-     * @param ResponseInterface $response         Response received (if any)
-     * @param null              $transferTime     Total handler transfer time.
-     * @param mixed             $handlerErrorData Handler error data.
-     * @param array             $handlerStats     Handler specific stats.
+     * @param RequestInterface       $request          Request that was sent.
+     * @param ResponseInterface|null $response         Response received (if any)
+     * @param float|null             $transferTime     Total handler transfer time.
+     * @param mixed                  $handlerErrorData Handler error data.
+     * @param array                  $handlerStats     Handler specific stats.
      */
-    public function __construct(\Mailster\Aws3\Psr\Http\Message\RequestInterface $request, \Mailster\Aws3\Psr\Http\Message\ResponseInterface $response = null, $transferTime = null, $handlerErrorData = null, $handlerStats = [])
+    public function __construct(RequestInterface $request, ResponseInterface $response = null, $transferTime = null, $handlerErrorData = null, $handlerStats = [])
     {
         $this->request = $request;
         $this->response = $response;
@@ -81,7 +81,7 @@ final class TransferStats
     /**
      * Get the estimated time the request was being transferred by the handler.
      *
-     * @return float Time in seconds.
+     * @return float|null Time in seconds.
      */
     public function getTransferTime()
     {

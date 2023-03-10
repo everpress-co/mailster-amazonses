@@ -3,11 +3,11 @@
 namespace Mailster\Aws3\Aws;
 
 use Mailster\Aws3\Doctrine\Common\Cache\Cache;
-class DoctrineCacheAdapter implements \Mailster\Aws3\Aws\CacheInterface, \Mailster\Aws3\Doctrine\Common\Cache\Cache
+class DoctrineCacheAdapter implements CacheInterface, Cache
 {
     /** @var Cache */
     private $cache;
-    public function __construct(\Mailster\Aws3\Doctrine\Common\Cache\Cache $cache)
+    public function __construct(Cache $cache)
     {
         $this->cache = $cache;
     }

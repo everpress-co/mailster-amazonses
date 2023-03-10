@@ -19,7 +19,7 @@ class XmlBody
     /**
      * @param Service $api API being used to create the XML body.
      */
-    public function __construct(\Mailster\Aws3\Aws\Api\Service $api)
+    public function __construct(Service $api)
     {
         $this->api = $api;
     }
@@ -31,26 +31,26 @@ class XmlBody
      *
      * @return string
      */
-    public function build(\Mailster\Aws3\Aws\Api\Shape $shape, array $args)
+    public function build(Shape $shape, array $args)
     {
-        $xml = new \XMLWriter();
+        $xml = new XMLWriter();
         $xml->openMemory();
         $xml->startDocument('1.0', 'UTF-8');
         $this->format($shape, $shape['locationName'] ?: $shape['name'], $args, $xml);
         $xml->endDocument();
         return $xml->outputMemory();
     }
-    private function startElement(\Mailster\Aws3\Aws\Api\Shape $shape, $name, \XMLWriter $xml)
+    private function startElement(Shape $shape, $name, XMLWriter $xml)
     {
         $xml->startElement($name);
         if ($ns = $shape['xmlNamespace']) {
             $xml->writeAttribute(isset($ns['prefix']) ? "xmlns:{$ns['prefix']}" : 'xmlns', $shape['xmlNamespace']['uri']);
         }
     }
-    private function format(\Mailster\Aws3\Aws\Api\Shape $shape, $name, $value, \XMLWriter $xml)
+    private function format(Shape $shape, $name, $value, XMLWriter $xml)
     {
         // Any method mentioned here has a custom serialization handler.
-        static $methods = ['add_structure' => true, 'add_list' => true, 'add_blob' => true, 'add_timestamp' => true, 'add_boolean' => true, 'add_map' => true, 'add_string' => true];
+        static $methods = ['add_structure' => \true, 'add_list' => \true, 'add_blob' => \true, 'add_timestamp' => \true, 'add_boolean' => \true, 'add_map' => \true, 'add_string' => \true];
         $type = 'add_' . $shape['type'];
         if (isset($methods[$type])) {
             $this->{$type}($shape, $name, $value, $xml);
@@ -58,13 +58,13 @@ class XmlBody
             $this->defaultShape($shape, $name, $value, $xml);
         }
     }
-    private function defaultShape(\Mailster\Aws3\Aws\Api\Shape $shape, $name, $value, \XMLWriter $xml)
+    private function defaultShape(Shape $shape, $name, $value, XMLWriter $xml)
     {
         $this->startElement($shape, $name, $xml);
-        $xml->writeRaw($value);
+        $xml->text($value);
         $xml->endElement();
     }
-    private function add_structure(\Mailster\Aws3\Aws\Api\StructureShape $shape, $name, array $value, \XMLWriter $xml)
+    private function add_structure(StructureShape $shape, $name, array $value, \XMLWriter $xml)
     {
         $this->startElement($shape, $name, $xml);
         foreach ($this->getStructureMembers($shape, $value) as $k => $definition) {
@@ -72,7 +72,7 @@ class XmlBody
         }
         $xml->endElement();
     }
-    private function getStructureMembers(\Mailster\Aws3\Aws\Api\StructureShape $shape, array $value)
+    private function getStructureMembers(StructureShape $shape, array $value)
     {
         $members = [];
         foreach ($value as $k => $v) {
@@ -88,7 +88,7 @@ class XmlBody
         }
         return $members;
     }
-    private function add_list(\Mailster\Aws3\Aws\Api\ListShape $shape, $name, array $value, \XMLWriter $xml)
+    private function add_list(ListShape $shape, $name, array $value, XMLWriter $xml)
     {
         $items = $shape->getMember();
         if ($shape['flattened']) {
@@ -104,7 +104,7 @@ class XmlBody
             $xml->endElement();
         }
     }
-    private function add_map(\Mailster\Aws3\Aws\Api\MapShape $shape, $name, array $value, \XMLWriter $xml)
+    private function add_map(MapShape $shape, $name, array $value, XMLWriter $xml)
     {
         $xmlEntry = $shape['flattened'] ? $shape['locationName'] : 'entry';
         $xmlKey = $shape->getKey()['locationName'] ?: 'key';
@@ -118,25 +118,26 @@ class XmlBody
         }
         $xml->endElement();
     }
-    private function add_blob(\Mailster\Aws3\Aws\Api\Shape $shape, $name, $value, \XMLWriter $xml)
+    private function add_blob(Shape $shape, $name, $value, XMLWriter $xml)
     {
         $this->startElement($shape, $name, $xml);
-        $xml->writeRaw(base64_encode($value));
+        $xml->writeRaw(\base64_encode($value));
         $xml->endElement();
     }
-    private function add_timestamp(\Mailster\Aws3\Aws\Api\TimestampShape $shape, $name, $value, \XMLWriter $xml)
+    private function add_timestamp(TimestampShape $shape, $name, $value, XMLWriter $xml)
     {
         $this->startElement($shape, $name, $xml);
-        $xml->writeRaw(\Mailster\Aws3\Aws\Api\TimestampShape::format($value, 'iso8601'));
+        $timestampFormat = !empty($shape['timestampFormat']) ? $shape['timestampFormat'] : 'iso8601';
+        $xml->writeRaw(TimestampShape::format($value, $timestampFormat));
         $xml->endElement();
     }
-    private function add_boolean(\Mailster\Aws3\Aws\Api\Shape $shape, $name, $value, \XMLWriter $xml)
+    private function add_boolean(Shape $shape, $name, $value, XMLWriter $xml)
     {
         $this->startElement($shape, $name, $xml);
         $xml->writeRaw($value ? 'true' : 'false');
         $xml->endElement();
     }
-    private function add_string(\Mailster\Aws3\Aws\Api\Shape $shape, $name, $value, \XMLWriter $xml)
+    private function add_string(Shape $shape, $name, $value, XMLWriter $xml)
     {
         if ($shape['xmlAttribute']) {
             $xml->writeAttribute($shape['locationName'] ?: $name, $value);

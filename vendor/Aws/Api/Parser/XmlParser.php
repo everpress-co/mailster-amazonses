@@ -5,6 +5,7 @@ namespace Mailster\Aws3\Aws\Api\Parser;
 use Mailster\Aws3\Aws\Api\DateTimeResult;
 use Mailster\Aws3\Aws\Api\ListShape;
 use Mailster\Aws3\Aws\Api\MapShape;
+use Mailster\Aws3\Aws\Api\Parser\Exception\ParserException;
 use Mailster\Aws3\Aws\Api\Shape;
 use Mailster\Aws3\Aws\Api\StructureShape;
 /**
@@ -12,7 +13,7 @@ use Mailster\Aws3\Aws\Api\StructureShape;
  */
 class XmlParser
 {
-    public function parse(\Mailster\Aws3\Aws\Api\StructureShape $shape, \SimpleXMLElement $value)
+    public function parse(StructureShape $shape, \SimpleXMLElement $value)
     {
         return $this->dispatch($shape, $value);
     }
@@ -25,7 +26,7 @@ class XmlParser
         }
         return (string) $value;
     }
-    private function parse_structure(\Mailster\Aws3\Aws\Api\StructureShape $shape, \SimpleXMLElement $value)
+    private function parse_structure(StructureShape $shape, \SimpleXMLElement $value)
     {
         $target = [];
         foreach ($shape->getMembers() as $name => $member) {
@@ -33,11 +34,22 @@ class XmlParser
             $node = $this->memberKey($member, $name);
             if (isset($value->{$node})) {
                 $target[$name] = $this->dispatch($member, $value->{$node});
+            } else {
+                $memberShape = $shape->getMember($name);
+                if (!empty($memberShape['xmlAttribute'])) {
+                    $target[$name] = $this->parse_xml_attribute($shape, $memberShape, $value);
+                }
+            }
+        }
+        if (isset($shape['union']) && $shape['union'] && empty($target)) {
+            foreach ($value as $key => $val) {
+                $name = $val->children()->getName();
+                $target['Unknown'][$name] = $val->{$name};
             }
         }
         return $target;
     }
-    private function memberKey(\Mailster\Aws3\Aws\Api\Shape $shape, $name)
+    private function memberKey(Shape $shape, $name)
     {
         if (null !== $shape['locationName']) {
             return $shape['locationName'];
@@ -47,7 +59,7 @@ class XmlParser
         }
         return $name;
     }
-    private function parse_list(\Mailster\Aws3\Aws\Api\ListShape $shape, \SimpleXMLElement $value)
+    private function parse_list(ListShape $shape, \SimpleXMLElement $value)
     {
         $target = [];
         $member = $shape->getMember();
@@ -59,7 +71,7 @@ class XmlParser
         }
         return $target;
     }
-    private function parse_map(\Mailster\Aws3\Aws\Api\MapShape $shape, \SimpleXMLElement $value)
+    private function parse_map(MapShape $shape, \SimpleXMLElement $value)
     {
         $target = [];
         if (!$shape['flattened']) {
@@ -76,24 +88,38 @@ class XmlParser
         }
         return $target;
     }
-    private function parse_blob(\Mailster\Aws3\Aws\Api\Shape $shape, $value)
+    private function parse_blob(Shape $shape, $value)
     {
-        return base64_decode((string) $value);
+        return \base64_decode((string) $value);
     }
-    private function parse_float(\Mailster\Aws3\Aws\Api\Shape $shape, $value)
+    private function parse_float(Shape $shape, $value)
     {
-        return (double) (string) $value;
+        return (float) (string) $value;
     }
-    private function parse_integer(\Mailster\Aws3\Aws\Api\Shape $shape, $value)
+    private function parse_integer(Shape $shape, $value)
     {
         return (int) (string) $value;
     }
-    private function parse_boolean(\Mailster\Aws3\Aws\Api\Shape $shape, $value)
+    private function parse_boolean(Shape $shape, $value)
     {
         return $value == 'true';
     }
-    private function parse_timestamp(\Mailster\Aws3\Aws\Api\Shape $shape, $value)
+    private function parse_timestamp(Shape $shape, $value)
     {
-        return new \Mailster\Aws3\Aws\Api\DateTimeResult($value);
+        if (\is_string($value) || \is_int($value) || \is_object($value) && \method_exists($value, '__toString')) {
+            return DateTimeResult::fromTimestamp((string) $value, !empty($shape['timestampFormat']) ? $shape['timestampFormat'] : null);
+        }
+        throw new ParserException('Invalid timestamp value passed to XmlParser::parse_timestamp');
+    }
+    private function parse_xml_attribute(Shape $shape, Shape $memberShape, $value)
+    {
+        $namespace = $shape['xmlNamespace']['uri'] ? $shape['xmlNamespace']['uri'] : '';
+        $prefix = $shape['xmlNamespace']['prefix'] ? $shape['xmlNamespace']['prefix'] : '';
+        if (!empty($prefix)) {
+            $prefix .= ':';
+        }
+        $key = \str_replace($prefix, '', $memberShape['locationName']);
+        $attributes = $value->attributes($namespace);
+        return isset($attributes[$key]) ? (string) $attributes[$key] : null;
     }
 }

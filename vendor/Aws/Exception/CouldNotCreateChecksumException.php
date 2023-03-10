@@ -2,8 +2,11 @@
 
 namespace Mailster\Aws3\Aws\Exception;
 
-class CouldNotCreateChecksumException extends \RuntimeException
+use Mailster\Aws3\Aws\HasMonitoringEventsTrait;
+use Mailster\Aws3\Aws\MonitoringEventsInterface;
+class CouldNotCreateChecksumException extends \RuntimeException implements MonitoringEventsInterface
 {
+    use HasMonitoringEventsTrait;
     public function __construct($algorithm, \Exception $previous = null)
     {
         $prefix = $algorithm === 'md5' ? "An" : "A";

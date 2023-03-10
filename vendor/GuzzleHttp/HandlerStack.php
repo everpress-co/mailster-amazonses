@@ -2,14 +2,16 @@
 
 namespace Mailster\Aws3\GuzzleHttp;
 
+use Mailster\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use Mailster\Aws3\Psr\Http\Message\RequestInterface;
+use Mailster\Aws3\Psr\Http\Message\ResponseInterface;
 /**
  * Creates a composed Guzzle handler function by stacking middlewares on top of
  * an HTTP handler function.
  */
 class HandlerStack
 {
-    /** @var callable */
+    /** @var callable|null */
     private $handler;
     /** @var array */
     private $stack = [];
@@ -35,10 +37,10 @@ class HandlerStack
     public static function create(callable $handler = null)
     {
         $stack = new self($handler ?: choose_handler());
-        $stack->push(\Mailster\Aws3\GuzzleHttp\Middleware::httpErrors(), 'http_errors');
-        $stack->push(\Mailster\Aws3\GuzzleHttp\Middleware::redirect(), 'allow_redirects');
-        $stack->push(\Mailster\Aws3\GuzzleHttp\Middleware::cookies(), 'cookies');
-        $stack->push(\Mailster\Aws3\GuzzleHttp\Middleware::prepareBody(), 'prepare_body');
+        $stack->push(Middleware::httpErrors(), 'http_errors');
+        $stack->push(Middleware::redirect(), 'allow_redirects');
+        $stack->push(Middleware::cookies(), 'cookies');
+        $stack->push(Middleware::prepareBody(), 'prepare_body');
         return $stack;
     }
     /**
@@ -53,8 +55,10 @@ class HandlerStack
      *
      * @param RequestInterface $request
      * @param array            $options
+     *
+     * @return ResponseInterface|PromiseInterface
      */
-    public function __invoke(\Mailster\Aws3\Psr\Http\Message\RequestInterface $request, array $options)
+    public function __invoke(RequestInterface $request, array $options)
     {
         $handler = $this->resolve();
         return $handler($request, $options);
@@ -72,14 +76,14 @@ class HandlerStack
             $stack[] = "0) Handler: " . $this->debugCallable($this->handler);
         }
         $result = '';
-        foreach (array_reverse($this->stack) as $tuple) {
+        foreach (\array_reverse($this->stack) as $tuple) {
             $depth++;
             $str = "{$depth}) Name: '{$tuple[1]}', ";
             $str .= "Function: " . $this->debugCallable($tuple[0]);
             $result = "> {$str}\n{$result}";
             $stack[] = $str;
         }
-        foreach (array_keys($stack) as $k) {
+        foreach (\array_keys($stack) as $k) {
             $result .= "< {$stack[$k]}\n";
         }
         return $result;
@@ -112,7 +116,7 @@ class HandlerStack
      */
     public function unshift(callable $middleware, $name = null)
     {
-        array_unshift($this->stack, [$middleware, $name]);
+        \array_unshift($this->stack, [$middleware, $name]);
         $this->cached = null;
     }
     /**
@@ -135,7 +139,7 @@ class HandlerStack
      */
     public function before($findName, callable $middleware, $withName = '')
     {
-        $this->splice($findName, $withName, $middleware, true);
+        $this->splice($findName, $withName, $middleware, \true);
     }
     /**
      * Add a middleware after another middleware by name.
@@ -146,7 +150,7 @@ class HandlerStack
      */
     public function after($findName, callable $middleware, $withName = '')
     {
-        $this->splice($findName, $withName, $middleware, false);
+        $this->splice($findName, $withName, $middleware, \false);
     }
     /**
      * Remove a middleware by instance or name from the stack.
@@ -156,8 +160,8 @@ class HandlerStack
     public function remove($remove)
     {
         $this->cached = null;
-        $idx = is_callable($remove) ? 0 : 1;
-        $this->stack = array_values(array_filter($this->stack, function ($tuple) use($idx, $remove) {
+        $idx = \is_callable($remove) ? 0 : 1;
+        $this->stack = \array_values(\array_filter($this->stack, function ($tuple) use($idx, $remove) {
             return $tuple[$idx] !== $remove;
         }));
     }
@@ -172,7 +176,7 @@ class HandlerStack
             if (!($prev = $this->handler)) {
                 throw new \LogicException('No handler has been specified');
             }
-            foreach (array_reverse($this->stack) as $fn) {
+            foreach (\array_reverse($this->stack) as $fn) {
                 $prev = $fn[0]($prev);
             }
             $this->cached = $prev;
@@ -180,7 +184,7 @@ class HandlerStack
         return $this->cached;
     }
     /**
-     * @param $name
+     * @param string $name
      * @return int
      */
     private function findByName($name)
@@ -195,10 +199,10 @@ class HandlerStack
     /**
      * Splices a function into the middleware list at a specific position.
      *
-     * @param          $findName
-     * @param          $withName
+     * @param string   $findName
+     * @param string   $withName
      * @param callable $middleware
-     * @param          $before
+     * @param bool     $before
      */
     private function splice($findName, $withName, callable $middleware, $before)
     {
@@ -207,16 +211,16 @@ class HandlerStack
         $tuple = [$middleware, $withName];
         if ($before) {
             if ($idx === 0) {
-                array_unshift($this->stack, $tuple);
+                \array_unshift($this->stack, $tuple);
             } else {
                 $replacement = [$tuple, $this->stack[$idx]];
-                array_splice($this->stack, $idx, 1, $replacement);
+                \array_splice($this->stack, $idx, 1, $replacement);
             }
-        } elseif ($idx === count($this->stack) - 1) {
+        } elseif ($idx === \count($this->stack) - 1) {
             $this->stack[] = $tuple;
         } else {
             $replacement = [$this->stack[$idx], $tuple];
-            array_splice($this->stack, $idx, 1, $replacement);
+            \array_splice($this->stack, $idx, 1, $replacement);
         }
     }
     /**
@@ -228,12 +232,12 @@ class HandlerStack
      */
     private function debugCallable($fn)
     {
-        if (is_string($fn)) {
+        if (\is_string($fn)) {
             return "callable({$fn})";
         }
-        if (is_array($fn)) {
-            return is_string($fn[0]) ? "callable({$fn[0]}::{$fn[1]})" : "callable(['" . get_class($fn[0]) . "', '{$fn[1]}'])";
+        if (\is_array($fn)) {
+            return \is_string($fn[0]) ? "callable({$fn[0]}::{$fn[1]})" : "callable(['" . \get_class($fn[0]) . "', '{$fn[1]}'])";
         }
-        return 'callable(' . spl_object_hash($fn) . ')';
+        return 'callable(' . \spl_object_hash($fn) . ')';
     }
 }

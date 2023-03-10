@@ -6,6 +6,7 @@ use Mailster\Aws3\Aws\Exception\AwsException;
 use Mailster\Aws3\GuzzleHttp\Promise;
 use Mailster\Aws3\GuzzleHttp\Promise\RejectedPromise;
 use Mailster\Aws3\Psr\Http\Message\RequestInterface;
+use Exception;
 /**
  * Returns promises that are rejected or fulfilled using a queue of
  * Aws\ResultInterface and Aws\Exception\AwsException objects.
@@ -31,7 +32,7 @@ class MockHandler implements \Countable
         $this->onFulfilled = $onFulfilled;
         $this->onRejected = $onRejected;
         if ($resultOrQueue) {
-            call_user_func_array([$this, 'append'], $resultOrQueue);
+            \call_user_func_array([$this, 'append'], \array_values($resultOrQueue));
         }
     }
     /**
@@ -40,15 +41,28 @@ class MockHandler implements \Countable
      */
     public function append()
     {
-        foreach (func_get_args() as $value) {
-            if ($value instanceof ResultInterface || $value instanceof AwsException || is_callable($value)) {
+        foreach (\func_get_args() as $value) {
+            if ($value instanceof ResultInterface || $value instanceof Exception || \is_callable($value)) {
                 $this->queue[] = $value;
             } else {
-                throw new \InvalidArgumentException('Expected an Aws\\ResultInterface or Aws\\Exception\\AwsException.');
+                throw new \InvalidArgumentException('Expected an Aws\\ResultInterface or Exception.');
             }
         }
     }
-    public function __invoke(\Mailster\Aws3\Aws\CommandInterface $command, \Mailster\Aws3\Psr\Http\Message\RequestInterface $request)
+    /**
+     * Adds one or more \Exception or \Throwable to the queue
+     */
+    public function appendException()
+    {
+        foreach (\func_get_args() as $value) {
+            if ($value instanceof \Exception || $value instanceof \Throwable) {
+                $this->queue[] = $value;
+            } else {
+                throw new \InvalidArgumentException('Expected an \\Exception or \\Throwable.');
+            }
+        }
+    }
+    public function __invoke(CommandInterface $command, RequestInterface $request)
     {
         if (!$this->queue) {
             $last = $this->lastCommand ? ' The last command sent was ' . $this->lastCommand->getName() . '.' : '';
@@ -56,12 +70,12 @@ class MockHandler implements \Countable
         }
         $this->lastCommand = $command;
         $this->lastRequest = $request;
-        $result = array_shift($this->queue);
-        if (is_callable($result)) {
+        $result = \array_shift($this->queue);
+        if (\is_callable($result)) {
             $result = $result($command, $request);
         }
         if ($result instanceof \Exception) {
-            $result = new \Mailster\Aws3\GuzzleHttp\Promise\RejectedPromise($result);
+            $result = new RejectedPromise($result);
         } else {
             // Add an effective URI and statusCode if not present.
             $meta = $result['@metadata'];
@@ -72,7 +86,7 @@ class MockHandler implements \Countable
                 $meta['statusCode'] = 200;
             }
             $result['@metadata'] = $meta;
-            $result = \Mailster\Aws3\GuzzleHttp\Promise\promise_for($result);
+            $result = Promise\Create::promiseFor($result);
         }
         $result->then($this->onFulfilled, $this->onRejected);
         return $result;
@@ -100,8 +114,9 @@ class MockHandler implements \Countable
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
-        return count($this->queue);
+        return \count($this->queue);
     }
 }
