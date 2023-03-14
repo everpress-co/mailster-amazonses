@@ -9,12 +9,12 @@ use Mailster\Aws3\Psr\Http\Message\UriInterface;
 /**
  * PSR-7 request implementation.
  */
-class Request implements \Mailster\Aws3\Psr\Http\Message\RequestInterface
+class Request implements RequestInterface
 {
     use MessageTrait;
     /** @var string */
     private $method;
-    /** @var null|string */
+    /** @var string|null */
     private $requestTarget;
     /** @var UriInterface */
     private $uri;
@@ -22,23 +22,24 @@ class Request implements \Mailster\Aws3\Psr\Http\Message\RequestInterface
      * @param string                               $method  HTTP method
      * @param string|UriInterface                  $uri     URI
      * @param array                                $headers Request headers
-     * @param string|null|resource|StreamInterface $body    Request body
+     * @param string|resource|StreamInterface|null $body    Request body
      * @param string                               $version Protocol version
      */
     public function __construct($method, $uri, array $headers = [], $body = null, $version = '1.1')
     {
+        $this->assertMethod($method);
         if (!$uri instanceof UriInterface) {
-            $uri = new \Mailster\Aws3\GuzzleHttp\Psr7\Uri($uri);
+            $uri = new Uri($uri);
         }
-        $this->method = strtoupper($method);
+        $this->method = \strtoupper($method);
         $this->uri = $uri;
         $this->setHeaders($headers);
         $this->protocol = $version;
-        if (!$this->hasHeader('Host')) {
+        if (!isset($this->headerNames['host'])) {
             $this->updateHostFromUri();
         }
         if ($body !== '' && $body !== null) {
-            $this->stream = stream_for($body);
+            $this->stream = Utils::streamFor($body);
         }
     }
     public function getRequestTarget()
@@ -57,8 +58,8 @@ class Request implements \Mailster\Aws3\Psr\Http\Message\RequestInterface
     }
     public function withRequestTarget($requestTarget)
     {
-        if (preg_match('#\\s#', $requestTarget)) {
-            throw new \InvalidArgumentException('Invalid request target provided; cannot contain whitespace');
+        if (\preg_match('#\\s#', $requestTarget)) {
+            throw new InvalidArgumentException('Invalid request target provided; cannot contain whitespace');
         }
         $new = clone $this;
         $new->requestTarget = $requestTarget;
@@ -70,22 +71,23 @@ class Request implements \Mailster\Aws3\Psr\Http\Message\RequestInterface
     }
     public function withMethod($method)
     {
+        $this->assertMethod($method);
         $new = clone $this;
-        $new->method = strtoupper($method);
+        $new->method = \strtoupper($method);
         return $new;
     }
     public function getUri()
     {
         return $this->uri;
     }
-    public function withUri(\Mailster\Aws3\Psr\Http\Message\UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = \false)
     {
         if ($uri === $this->uri) {
             return $this;
         }
         $new = clone $this;
         $new->uri = $uri;
-        if (!$preserveHost) {
+        if (!$preserveHost || !isset($this->headerNames['host'])) {
             $new->updateHostFromUri();
         }
         return $new;
@@ -108,5 +110,11 @@ class Request implements \Mailster\Aws3\Psr\Http\Message\RequestInterface
         // Ensure Host is the first header.
         // See: http://tools.ietf.org/html/rfc7230#section-5.4
         $this->headers = [$header => [$host]] + $this->headers;
+    }
+    private function assertMethod($method)
+    {
+        if (!\is_string($method) || $method === '') {
+            throw new \InvalidArgumentException('Method must be a non-empty string.');
+        }
     }
 }

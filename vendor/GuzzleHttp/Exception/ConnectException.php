@@ -8,9 +8,9 @@ use Mailster\Aws3\Psr\Http\Message\RequestInterface;
  *
  * Note that no response is present for a ConnectException
  */
-class ConnectException extends \Mailster\Aws3\GuzzleHttp\Exception\RequestException
+class ConnectException extends RequestException
 {
-    public function __construct($message, \Mailster\Aws3\Psr\Http\Message\RequestInterface $request, \Exception $previous = null, array $handlerContext = [])
+    public function __construct($message, RequestInterface $request, \Exception $previous = null, array $handlerContext = [])
     {
         parent::__construct($message, $request, null, $previous, $handlerContext);
     }
@@ -26,6 +26,6 @@ class ConnectException extends \Mailster\Aws3\GuzzleHttp\Exception\RequestExcept
      */
     public function hasResponse()
     {
-        return false;
+        return \false;
     }
 }

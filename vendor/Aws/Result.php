@@ -6,9 +6,10 @@ use Mailster\Aws3\JmesPath\Env as JmesPath;
 /**
  * AWS result.
  */
-class Result implements \Mailster\Aws3\Aws\ResultInterface
+class Result implements ResultInterface, MonitoringEventsInterface
 {
     use HasDataTrait;
+    use HasMonitoringEventsTrait;
     public function __construct(array $data = [])
     {
         $this->data = $data;
@@ -23,11 +24,11 @@ class Result implements \Mailster\Aws3\Aws\ResultInterface
     }
     public function search($expression)
     {
-        return \Mailster\Aws3\JmesPath\Env::search($expression, $this->toArray());
+        return JmesPath::search($expression, $this->toArray());
     }
     public function __toString()
     {
-        $jsonData = json_encode($this->toArray(), JSON_PRETTY_PRINT);
+        $jsonData = \json_encode($this->toArray(), \JSON_PRETTY_PRINT);
         return <<<EOT
 Model Data
 ----------
@@ -45,6 +46,6 @@ EOT;
      */
     public function getPath($path)
     {
-        return $this->search(str_replace('/', '.', $path));
+        return $this->search(\str_replace('/', '.', $path));
     }
 }

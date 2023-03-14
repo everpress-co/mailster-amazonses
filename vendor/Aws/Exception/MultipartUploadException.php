@@ -2,20 +2,23 @@
 
 namespace Mailster\Aws3\Aws\Exception;
 
+use Mailster\Aws3\Aws\HasMonitoringEventsTrait;
+use Mailster\Aws3\Aws\MonitoringEventsInterface;
 use Mailster\Aws3\Aws\Multipart\UploadState;
-class MultipartUploadException extends \RuntimeException
+class MultipartUploadException extends \RuntimeException implements MonitoringEventsInterface
 {
+    use HasMonitoringEventsTrait;
     /** @var UploadState State of the erroneous transfer */
     private $state;
     /**
      * @param UploadState      $state Upload state at time of the exception.
      * @param \Exception|array $prev  Exception being thrown.
      */
-    public function __construct(\Mailster\Aws3\Aws\Multipart\UploadState $state, $prev = null)
+    public function __construct(UploadState $state, $prev = null)
     {
         $msg = 'An exception occurred while performing a multipart upload';
-        if (is_array($prev)) {
-            $msg = strtr($msg, ['performing' => 'uploading parts to']);
+        if (\is_array($prev)) {
+            $msg = \strtr($msg, ['performing' => 'uploading parts to']);
             $msg .= ". The following parts had errors:\n";
             /** @var $error AwsException */
             foreach ($prev as $part => $error) {
@@ -32,7 +35,7 @@ class MultipartUploadException extends \RuntimeException
                     break;
             }
             if (isset($action)) {
-                $msg = strtr($msg, ['performing' => $action]);
+                $msg = \strtr($msg, ['performing' => $action]);
             }
             $msg .= ": {$prev->getMessage()}";
         }

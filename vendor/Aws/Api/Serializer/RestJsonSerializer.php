@@ -8,7 +8,7 @@ use Mailster\Aws3\Aws\Api\StructureShape;
  * Serializes requests for the REST-JSON protocol.
  * @internal
  */
-class RestJsonSerializer extends \Mailster\Aws3\Aws\Api\Serializer\RestSerializer
+class RestJsonSerializer extends RestSerializer
 {
     /** @var JsonBody */
     private $jsonFormatter;
@@ -19,15 +19,16 @@ class RestJsonSerializer extends \Mailster\Aws3\Aws\Api\Serializer\RestSerialize
      * @param string   $endpoint      Endpoint to connect to
      * @param JsonBody $jsonFormatter Optional JSON formatter to use
      */
-    public function __construct(\Mailster\Aws3\Aws\Api\Service $api, $endpoint, \Mailster\Aws3\Aws\Api\Serializer\JsonBody $jsonFormatter = null)
+    public function __construct(Service $api, $endpoint, JsonBody $jsonFormatter = null)
     {
         parent::__construct($api, $endpoint);
-        $this->contentType = \Mailster\Aws3\Aws\Api\Serializer\JsonBody::getContentType($api);
-        $this->jsonFormatter = $jsonFormatter ?: new \Mailster\Aws3\Aws\Api\Serializer\JsonBody($api);
+        $this->contentType = JsonBody::getContentType($api);
+        $this->jsonFormatter = $jsonFormatter ?: new JsonBody($api);
     }
-    protected function payload(\Mailster\Aws3\Aws\Api\StructureShape $member, array $value, array &$opts)
+    protected function payload(StructureShape $member, array $value, array &$opts)
     {
+        $body = isset($value) ? (string) $this->jsonFormatter->build($member, $value) : "{}";
         $opts['headers']['Content-Type'] = $this->contentType;
-        $opts['body'] = (string) $this->jsonFormatter->build($member, $value);
+        $opts['body'] = $body;
     }
 }

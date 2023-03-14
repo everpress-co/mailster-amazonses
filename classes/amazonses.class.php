@@ -144,13 +144,16 @@ class MailsterAmazonSES {
 		} else {
 
 			$mailobject->mailer->PreSend();
+
 			$data = array(
-				'RawMessage' => array(
-					'Data' => $mailobject->mailer->GetSentMIMEMessage(),
+				'Content' => array(
+					'Raw' => array(
+						'Data' => $mailobject->mailer->GetSentMIMEMessage(),
+					),
 				),
 			);
 
-			$result = $this->aws( 'sendRawEmail', $data );
+			$result = $this->aws( 'sendEmail', $data );
 
 			if ( is_wp_error( $result ) ) {
 				$mailobject->set_error( $result->get_error_message() );
@@ -169,11 +172,17 @@ class MailsterAmazonSES {
 	private function aws( $method = null, $args = array() ) {
 
 		if ( ! $this->aws ) {
+
 			require_once $this->plugin_path . 'vendor/autoload.php';
 
-			$this->aws = new \Mailster\Aws3\Aws\Ses\SesClient(
+			// for PHP < 8.0 problem with the Guzzle lib
+			if ( ! defined( 'IDNA_DEFAULT' ) ) {
+				define( 'IDNA_DEFAULT', 0 );
+			}
+
+			$this->aws = new \Mailster\Aws3\Aws\SesV2\SesV2Client(
 				array(
-					'version'     => '2010-12-01',
+					'version'     => '2019-09-27',
 					'signature'   => 'v4',
 					'region'      => mailster_option( 'amazonses_endpoint' ),
 					'credentials' => array(
@@ -190,7 +199,7 @@ class MailsterAmazonSES {
 
 		try {
 			return call_user_func( array( $this->aws, $method ), $args );
-		} catch ( \Mailster\Aws\SesV2\Exception\SesV2Exception $e ) {
+		} catch ( \Mailster\Aws3\Aws\SesV2\Exception\SesV2Exception $e ) {
 			return new WP_Error( $e->getAwsErrorCode(), $e->getAwsErrorMessage() );
 		} catch ( \Exception $e ) {
 			// format error message
@@ -203,16 +212,22 @@ class MailsterAmazonSES {
 
 	public function getquota( $save = true ) {
 
-		$quota = $this->aws( 'getSendQuota' );
+		$account = $this->aws( 'getAccount' );
+
+		if ( is_wp_error( $account ) ) {
+			return $account;
+		}
+
+		$quota = $account->get( 'SendQuota' );
 
 		if ( is_wp_error( $quota ) ) {
 			return $quota;
 		}
 
 		$limits = array(
-			'sent'  => intval( $quota->get( 'SentLast24Hours' ) ),
-			'limit' => intval( $quota->get( 'Max24HourSend' ) ),
-			'rate'  => ceil( ( 1000 / intval( $quota->get( 'MaxSendRate' ) ) * 0.1 ) ),
+			'sent'  => intval( $quota['SentLast24Hours'] ),
+			'limit' => intval( $quota['Max24HourSend'] ),
+			'rate'  => ceil( ( 1000 / intval( $quota['MaxSendRate'] ) * 0.1 ) ),
 		);
 
 		$limits['sent'] = min( $limits['sent'], $limits['limit'] );

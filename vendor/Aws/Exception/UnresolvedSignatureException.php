@@ -2,6 +2,9 @@
 
 namespace Mailster\Aws3\Aws\Exception;
 
-class UnresolvedSignatureException extends \RuntimeException
+use Mailster\Aws3\Aws\HasMonitoringEventsTrait;
+use Mailster\Aws3\Aws\MonitoringEventsInterface;
+class UnresolvedSignatureException extends \RuntimeException implements MonitoringEventsInterface
 {
+    use HasMonitoringEventsTrait;
 }

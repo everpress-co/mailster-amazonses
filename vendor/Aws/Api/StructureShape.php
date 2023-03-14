@@ -5,13 +5,13 @@ namespace Mailster\Aws3\Aws\Api;
 /**
  * Represents a structure shape and resolve member shape references.
  */
-class StructureShape extends \Mailster\Aws3\Aws\Api\Shape
+class StructureShape extends Shape
 {
     /**
      * @var Shape[]
      */
     private $members;
-    public function __construct(array $definition, \Mailster\Aws3\Aws\Api\ShapeMap $shapeMap)
+    public function __construct(array $definition, ShapeMap $shapeMap)
     {
         $definition['type'] = 'structure';
         if (!isset($definition['members'])) {

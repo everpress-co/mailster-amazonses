@@ -8,7 +8,6 @@ use Mailster\Aws3\GuzzleHttp\Promise\RejectedPromise;
 use Mailster\Aws3\GuzzleHttp\Psr7;
 use Mailster\Aws3\Psr\Http\Message\ResponseInterface;
 use Mailster\Aws3\Psr\Log\LoggerInterface;
-use Mailster\Aws3\Psr\Log\LogLevel;
 /**
  * Functions used to create and wrap handlers with handler middleware.
  */
@@ -29,7 +28,7 @@ final class Middleware
                 if (empty($options['cookies'])) {
                     return $handler($request, $options);
                 } elseif (!$options['cookies'] instanceof CookieJarInterface) {
-                    throw new \InvalidArgumentException('cookies must be an instance of GuzzleHttp\\Cookie\\CookieJarInterface');
+                    throw new \InvalidArgumentException('Mailster\\Aws3\\cookies must be an instance of GuzzleHttp\\Cookie\\CookieJarInterface');
                 }
                 $cookieJar = $options['cookies'];
                 $request = $cookieJar->withCookieHeader($request);
@@ -53,12 +52,12 @@ final class Middleware
                 if (empty($options['http_errors'])) {
                     return $handler($request, $options);
                 }
-                return $handler($request, $options)->then(function (\Mailster\Aws3\Psr\Http\Message\ResponseInterface $response) use($request, $handler) {
+                return $handler($request, $options)->then(function (ResponseInterface $response) use($request) {
                     $code = $response->getStatusCode();
                     if ($code < 400) {
                         return $response;
                     }
-                    throw \Mailster\Aws3\GuzzleHttp\Exception\RequestException::create($request, $response);
+                    throw RequestException::create($request, $response);
                 });
             };
         };
@@ -73,7 +72,7 @@ final class Middleware
      */
     public static function history(&$container)
     {
-        if (!is_array($container) && !$container instanceof \ArrayAccess) {
+        if (!\is_array($container) && !$container instanceof \ArrayAccess) {
             throw new \InvalidArgumentException('history container must be an array or object implementing ArrayAccess');
         }
         return function (callable $handler) use(&$container) {
@@ -124,7 +123,7 @@ final class Middleware
     public static function redirect()
     {
         return function (callable $handler) {
-            return new \Mailster\Aws3\GuzzleHttp\RedirectMiddleware($handler);
+            return new RedirectMiddleware($handler);
         };
     }
     /**
@@ -145,7 +144,7 @@ final class Middleware
     public static function retry(callable $decider, callable $delay = null)
     {
         return function (callable $handler) use($decider, $delay) {
-            return new \Mailster\Aws3\GuzzleHttp\RetryMiddleware($decider, $handler, $delay);
+            return new RetryMiddleware($decider, $handler, $delay);
         };
     }
     /**
@@ -158,7 +157,7 @@ final class Middleware
      *
      * @return callable Returns a function that accepts the next handler.
      */
-    public static function log(\Mailster\Aws3\Psr\Log\LoggerInterface $logger, \Mailster\Aws3\GuzzleHttp\MessageFormatter $formatter, $logLevel = \Mailster\Aws3\Psr\Log\LogLevel::INFO)
+    public static function log(LoggerInterface $logger, MessageFormatter $formatter, $logLevel = 'info')
     {
         return function (callable $handler) use($logger, $formatter, $logLevel) {
             return function ($request, array $options) use($handler, $logger, $formatter, $logLevel) {
@@ -184,7 +183,7 @@ final class Middleware
     public static function prepareBody()
     {
         return function (callable $handler) {
-            return new \Mailster\Aws3\GuzzleHttp\PrepareBodyMiddleware($handler);
+            return new PrepareBodyMiddleware($handler);
         };
     }
     /**

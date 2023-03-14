@@ -2,8 +2,8 @@
 
 namespace Mailster\Aws3\GuzzleHttp;
 
-use Mailster\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use Mailster\Aws3\GuzzleHttp\Exception\GuzzleException;
+use Mailster\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use Mailster\Aws3\Psr\Http\Message\RequestInterface;
 use Mailster\Aws3\Psr\Http\Message\ResponseInterface;
 use Mailster\Aws3\Psr\Http\Message\UriInterface;
@@ -12,7 +12,10 @@ use Mailster\Aws3\Psr\Http\Message\UriInterface;
  */
 interface ClientInterface
 {
-    const VERSION = '6.3.3';
+    /**
+     * @deprecated Will be removed in Guzzle 7.0.0
+     */
+    const VERSION = '6.5.5';
     /**
      * Send an HTTP request.
      *
@@ -23,7 +26,7 @@ interface ClientInterface
      * @return ResponseInterface
      * @throws GuzzleException
      */
-    public function send(\Mailster\Aws3\Psr\Http\Message\RequestInterface $request, array $options = []);
+    public function send(RequestInterface $request, array $options = []);
     /**
      * Asynchronously send an HTTP request.
      *
@@ -33,7 +36,7 @@ interface ClientInterface
      *
      * @return PromiseInterface
      */
-    public function sendAsync(\Mailster\Aws3\Psr\Http\Message\RequestInterface $request, array $options = []);
+    public function sendAsync(RequestInterface $request, array $options = []);
     /**
      * Create and send an HTTP request.
      *

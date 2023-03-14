@@ -7,13 +7,19 @@ use Mailster\Aws3\Psr\Http\Message\RequestInterface;
 /**
  * Provides anonymous client access (does not sign requests).
  */
-class AnonymousSignature implements \Mailster\Aws3\Aws\Signature\SignatureInterface
+class AnonymousSignature implements SignatureInterface
 {
-    public function signRequest(\Mailster\Aws3\Psr\Http\Message\RequestInterface $request, \Mailster\Aws3\Aws\Credentials\CredentialsInterface $credentials)
+    /**
+     * /** {@inheritdoc}
+     */
+    public function signRequest(RequestInterface $request, CredentialsInterface $credentials)
     {
         return $request;
     }
-    public function presign(\Mailster\Aws3\Psr\Http\Message\RequestInterface $request, \Mailster\Aws3\Aws\Credentials\CredentialsInterface $credentials, $expires)
+    /**
+     * /** {@inheritdoc}
+     */
+    public function presign(RequestInterface $request, CredentialsInterface $credentials, $expires, array $options = [])
     {
         return $request;
     }
