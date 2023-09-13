@@ -3,9 +3,9 @@
 Contributors: everpress, xaverb  
 Tags: amazon, ses, mailster, newsletter, mailsteresp  
 Requires at least: 4.2  
-Tested up to: 6.1  
-Stable tag: 2.12.0  
-Requires PHP: 5.6+  
+Tested up to: 6.3  
+Stable tag: 2.13.0  
+Requires PHP: 7.2.5
 License: GPLv2 or later  
 Author: EverPress  
 Author URI: https://mailster.co
@@ -28,111 +28,117 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 
 ## Changelog
 
+### 2.13.0
+
+- updated third party libraries
+- fixes for PHP 8.2
+- now requires PHP 7.2.5+
+
 ### 2.12.0
 
--   updated third party libraries
+- updated third party libraries
 
 ### 2.11.0
 
--   added missing regions
+- added missing regions
 
 ### 2.10
 
--   update for Mailster 3.0
+- update for Mailster 3.0
 
 ### 2.9
 
--   improved bounce handling on Transient - General bounces
+- improved bounce handling on Transient - General bounces
 
 ### 2.8.1
 
--   fixed file path issues
+- fixed file path issues
 
 ### 2.8
 
--   added: 4 new regions: California, Paris, Stockholm, Bahrain
--   better formatting for error messages
+- added: 4 new regions: California, Paris, Stockholm, Bahrain
+- better formatting for error messages
 
 ### 2.7
 
--   do not resend campaigns on some soft bounces (transients) as it causes more complaints
--   small bug fixes and improvements
+- do not resend campaigns on some soft bounces (transients) as it causes more complaints
+- small bug fixes and improvements
 
 ### 2.6
 
--   make sure SNS region is the same as defined in the settings.
--   small bug fixes
+- make sure SNS region is the same as defined in the settings.
+- small bug fixes
 
 ### 2.5.1
 
--   fixed: respect 'Update Limits' options
+- fixed: respect 'Update Limits' options
 
 ### 2.5
 
--   added additional 4 endpoints: Ohio, Seoul, Singapore, Tokyo
+- added additional 4 endpoints: Ohio, Seoul, Singapore, Tokyo
 
 ### 2.4.2
 
--   fixed: respect 'Update Limits' options
+- fixed: respect 'Update Limits' options
 
 ### 2.4.1
 
--   fixed: SVN issue during update
+- fixed: SVN issue during update
 
 ### 2.4
 
--   brings back missing regions.
+- brings back missing regions.
 
 ### 2.3
 
--   revert back to 2.1 state caused by conflicts with third party plugins. If you rely on one of these endpoints please wait to update until we got that sorted:
--   Asia Pacific (Mumbai)
--   Asia Pacific (Sydney)
--   Canada (Central)
--   Europe (Frankfurt)
--   Europe (London)
--   South America (São Paulo)
+- revert back to 2.1 state caused by conflicts with third party plugins. If you rely on one of these endpoints please wait to update until we got that sorted:
+- Asia Pacific (Mumbai)
+- Asia Pacific (Sydney)
+- Canada (Central)
+- Europe (Frankfurt)
+- Europe (London)
+- South America (São Paulo)
 
 ### 2.2.2
 
--   fixed: error on ListEmailIdentities method
+- fixed: error on ListEmailIdentities method
 
 ### 2.2.1
 
--   fixed: error handling on getting account details
+- fixed: error handling on getting account details
 
 ### 2.2
 
--   fixed: updated authentication method for new endpoints
+- fixed: updated authentication method for new endpoints
 
 ### 2.1
 
--   updated: more endpoints are now available
+- updated: more endpoints are now available
 
 ### 2.0
 
--   New: Handle Bounces via [AmazonSNS](https://kb.mailster.co/handling-bounces-with-amazonsns/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme)
+- New: Handle Bounces via [AmazonSNS](https://kb.mailster.co/handling-bounces-with-amazonsns/?utm_campaign=wporg&utm_source=AmazonSES+integration+for+Mailster&utm_medium=readme)
 
 ### 1.2
 
--   improved resource handling if method is not enabled
--   changed file structure
+- improved resource handling if method is not enabled
+- changed file structure
 
 ### 1.1.2
 
--   improved routine to prevent duplicates
+- improved routine to prevent duplicates
 
 ### 1.1.1
 
--   increased request timeout to prevent false positives
+- increased request timeout to prevent false positives
 
 ### 1.1
 
--   added support for BCC on WEB API
+- added support for BCC on WEB API
 
 ### 1.0
 
--   initial release
+- initial release
 
 ## Additional Info
 

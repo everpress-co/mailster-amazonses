@@ -176,7 +176,7 @@ class MailsterAmazonSES {
 			require_once $this->plugin_path . 'vendor/autoload.php';
 
 			// for PHP < 8.0 problem with the Guzzle lib
-			if ( ! defined( 'IDNA_DEFAULT' ) ) {
+			if ( ! function_exists( 'idn_to_ascii' ) && ! defined( 'IDNA_DEFAULT' ) ) {
 				define( 'IDNA_DEFAULT', 0 );
 			}
 
@@ -212,7 +212,7 @@ class MailsterAmazonSES {
 
 	public function getquota( $save = true ) {
 
-		$account = $this->aws( 'getAccount' );
+		$account = $this->aws( 'GetAccount' );
 
 		if ( is_wp_error( $account ) ) {
 			return $account;

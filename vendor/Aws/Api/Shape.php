@@ -18,7 +18,7 @@ class Shape extends AbstractModel
      */
     public static function create(array $definition, ShapeMap $shapeMap)
     {
-        static $map = ['structure' => 'Mailster\\Aws3\\Aws\\Api\\StructureShape', 'map' => 'Mailster\\Aws3\\Aws\\Api\\MapShape', 'list' => 'Mailster\\Aws3\\Aws\\Api\\ListShape', 'timestamp' => 'Mailster\\Aws3\\Aws\\Api\\TimestampShape', 'integer' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'double' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'float' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'long' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'string' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'byte' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'character' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'blob' => 'Mailster\\Aws3\\Aws\\Api\\Shape', 'boolean' => 'Mailster\\Aws3\\Aws\\Api\\Shape'];
+        static $map = ['structure' => StructureShape::class, 'map' => MapShape::class, 'list' => ListShape::class, 'timestamp' => TimestampShape::class, 'integer' => Shape::class, 'double' => Shape::class, 'float' => Shape::class, 'long' => Shape::class, 'string' => Shape::class, 'byte' => Shape::class, 'character' => Shape::class, 'blob' => Shape::class, 'boolean' => Shape::class];
         if (isset($definition['shape'])) {
             return $shapeMap->resolve($definition);
         }
