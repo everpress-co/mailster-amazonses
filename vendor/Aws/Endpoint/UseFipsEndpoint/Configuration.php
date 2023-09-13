@@ -3,7 +3,6 @@
 namespace Mailster\Aws3\Aws\Endpoint\UseFipsEndpoint;
 
 use Mailster\Aws3\Aws;
-use Mailster\Aws3\Aws\ClientResolver;
 use Mailster\Aws3\Aws\Endpoint\UseFipsEndpoint\Exception\ConfigurationException;
 class Configuration implements ConfigurationInterface
 {

@@ -2,9 +2,6 @@
 
 namespace Mailster\Aws3\Aws\Api;
 
-use Mailster\Aws3\Aws\Api\Serializer\QuerySerializer;
-use Mailster\Aws3\Aws\Api\Serializer\Ec2ParamBuilder;
-use Mailster\Aws3\Aws\Api\Parser\QueryParser;
 /**
  * Represents a web service API model.
  */
@@ -61,13 +58,13 @@ class Service extends AbstractModel
      */
     public static function createSerializer(Service $api, $endpoint)
     {
-        static $mapping = ['json' => 'Mailster\\Aws3\\Aws\\Api\\Serializer\\JsonRpcSerializer', 'query' => 'Mailster\\Aws3\\Aws\\Api\\Serializer\\QuerySerializer', 'rest-json' => 'Mailster\\Aws3\\Aws\\Api\\Serializer\\RestJsonSerializer', 'rest-xml' => 'Mailster\\Aws3\\Aws\\Api\\Serializer\\RestXmlSerializer'];
+        static $mapping = ['json' => Serializer\JsonRpcSerializer::class, 'query' => Serializer\QuerySerializer::class, 'rest-json' => Serializer\RestJsonSerializer::class, 'rest-xml' => Serializer\RestXmlSerializer::class];
         $proto = $api->getProtocol();
         if (isset($mapping[$proto])) {
             return new $mapping[$proto]($api, $endpoint);
         }
         if ($proto == 'ec2') {
-            return new QuerySerializer($api, $endpoint, new Ec2ParamBuilder());
+            return new Serializer\QuerySerializer($api, $endpoint, new Serializer\Ec2ParamBuilder());
         }
         throw new \UnexpectedValueException('Unknown protocol: ' . $api->getProtocol());
     }
@@ -83,7 +80,7 @@ class Service extends AbstractModel
      */
     public static function createErrorParser($protocol, Service $api = null)
     {
-        static $mapping = ['json' => 'Mailster\\Aws3\\Aws\\Api\\ErrorParser\\JsonRpcErrorParser', 'query' => 'Mailster\\Aws3\\Aws\\Api\\ErrorParser\\XmlErrorParser', 'rest-json' => 'Mailster\\Aws3\\Aws\\Api\\ErrorParser\\RestJsonErrorParser', 'rest-xml' => 'Mailster\\Aws3\\Aws\\Api\\ErrorParser\\XmlErrorParser', 'ec2' => 'Mailster\\Aws3\\Aws\\Api\\ErrorParser\\XmlErrorParser'];
+        static $mapping = ['json' => ErrorParser\JsonRpcErrorParser::class, 'query' => ErrorParser\XmlErrorParser::class, 'rest-json' => ErrorParser\RestJsonErrorParser::class, 'rest-xml' => ErrorParser\XmlErrorParser::class, 'ec2' => ErrorParser\XmlErrorParser::class];
         if (isset($mapping[$protocol])) {
             return new $mapping[$protocol]($api);
         }
@@ -98,13 +95,13 @@ class Service extends AbstractModel
      */
     public static function createParser(Service $api)
     {
-        static $mapping = ['json' => 'Mailster\\Aws3\\Aws\\Api\\Parser\\JsonRpcParser', 'query' => 'Mailster\\Aws3\\Aws\\Api\\Parser\\QueryParser', 'rest-json' => 'Mailster\\Aws3\\Aws\\Api\\Parser\\RestJsonParser', 'rest-xml' => 'Mailster\\Aws3\\Aws\\Api\\Parser\\RestXmlParser'];
+        static $mapping = ['json' => Parser\JsonRpcParser::class, 'query' => Parser\QueryParser::class, 'rest-json' => Parser\RestJsonParser::class, 'rest-xml' => Parser\RestXmlParser::class];
         $proto = $api->getProtocol();
         if (isset($mapping[$proto])) {
             return new $mapping[$proto]($api);
         }
         if ($proto == 'ec2') {
-            return new QueryParser($api, null, \false);
+            return new Parser\QueryParser($api, null, \false);
         }
         throw new \UnexpectedValueException('Unknown protocol: ' . $api->getProtocol());
     }

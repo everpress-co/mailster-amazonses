@@ -4,6 +4,7 @@ namespace Mailster\Aws3\Aws;
 
 use Mailster\Aws3\Aws\Exception\AwsException;
 use Mailster\Aws3\GuzzleHttp\Promise\Coroutine;
+use Mailster\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use Mailster\Aws3\GuzzleHttp\Promise\PromisorInterface;
 use Mailster\Aws3\GuzzleHttp\Promise\RejectedPromise;
 /**
@@ -66,7 +67,7 @@ class Waiter implements PromisorInterface
     /**
      * @return Coroutine
      */
-    public function promise()
+    public function promise() : PromiseInterface
     {
         return Coroutine::of(function () {
             $name = $this->config['operation'];

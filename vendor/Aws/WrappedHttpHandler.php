@@ -3,6 +3,7 @@
 namespace Mailster\Aws3\Aws;
 
 use Mailster\Aws3\Aws\Api\Parser\Exception\ParserException;
+use Mailster\Aws3\Aws\Exception\AwsException;
 use Mailster\Aws3\GuzzleHttp\Promise;
 use Mailster\Aws3\Psr\Http\Message\RequestInterface;
 use Mailster\Aws3\Psr\Http\Message\ResponseInterface;
@@ -42,7 +43,7 @@ class WrappedHttpHandler
      * @param bool     $collectStats   Whether to collect HTTP transfer
      *                                 information.
      */
-    public function __construct(callable $httpHandler, callable $parser, callable $errorParser, $exceptionClass = 'Mailster\\Aws3\\Aws\\Exception\\AwsException', $collectStats = \false)
+    public function __construct(callable $httpHandler, callable $parser, callable $errorParser, $exceptionClass = AwsException::class, $collectStats = \false)
     {
         $this->httpHandler = $httpHandler;
         $this->parser = $parser;
