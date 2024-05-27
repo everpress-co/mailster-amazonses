@@ -1,14 +1,14 @@
 # Mailster AmazonSES Integration
 
-Contributors: everpress, xaverb  
+Contributors: everpress, mailster, xaverb  
 Tags: amazon, ses, mailster, newsletter, mailsteresp  
-Requires at least: 4.2  
-Tested up to: 6.3  
-Stable tag: 2.13.0  
-Requires PHP: 7.2.5
+Requires at least: 6.0  
+Tested up to: 6.5  
+Stable tag: 2.14.0  
+Requires PHP: 7.4
 License: GPLv2 or later  
 Author: EverPress  
-Author URI: https://mailster.co
+Author URI: <https://mailster.co>
 
 ## Description
 
@@ -27,6 +27,14 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 ![Option Interface.](https://ps.w.org/mailster-amazonses/assets/screenshot-1.png)
 
 ## Changelog
+
+### 2.14.0
+
+- updated tested up to
+- requires now PHP 7.4
+- requires now Mailster 4.0
+- requires now WordPress 6.0
+- code improvements
 
 ### 2.13.0
 
