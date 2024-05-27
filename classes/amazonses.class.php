@@ -84,7 +84,6 @@ class MailsterAmazonSES {
 			add_action( 'mailster_amazonses_cron', array( $this, 'getquota' ) );
 
 		}
-
 	}
 
 
@@ -108,7 +107,6 @@ class MailsterAmazonSES {
 			// disable dkim
 			$mailobject->dkim = false;
 		}
-
 	}
 
 
@@ -130,7 +128,6 @@ class MailsterAmazonSES {
 			$mailobject->pre_send();
 
 		}
-
 	}
 
 
@@ -165,13 +162,20 @@ class MailsterAmazonSES {
 				$mailobject->sent = false;
 			}
 		}
-
 	}
 
 
 	private function aws( $method = null, $args = array() ) {
 
 		if ( ! $this->aws ) {
+
+			if ( ! mailster_option( 'amazonses_access_key' ) ) {
+				return new WP_Error( 'error', 'No Access key' );
+			}
+
+			if ( ! mailster_option( 'amazonses_secret_key' ) ) {
+				return new WP_Error( 'error', 'No Secret key' );
+			}
 
 			require_once $this->plugin_path . 'vendor/autoload.php';
 
@@ -182,13 +186,14 @@ class MailsterAmazonSES {
 
 			$this->aws = new \Mailster\Aws3\Aws\SesV2\SesV2Client(
 				array(
-					'version'     => '2019-09-27',
-					'signature'   => 'v4',
-					'region'      => mailster_option( 'amazonses_endpoint' ),
-					'credentials' => array(
+					'version'                     => '2019-09-27',
+					'signature'                   => 'v4',
+					'region'                      => mailster_option( 'amazonses_endpoint' ),
+					'credentials'                 => array(
 						'key'    => mailster_option( 'amazonses_access_key' ),
 						'secret' => mailster_option( 'amazonses_secret_key' ),
 					),
+					'use_aws_shared_config_files' => false,
 				)
 			);
 		}
@@ -237,7 +242,6 @@ class MailsterAmazonSES {
 		}
 
 		return $limits;
-
 	}
 
 	public function subscriber_errors( $errors ) {
@@ -260,9 +264,7 @@ class MailsterAmazonSES {
 
 		wp_enqueue_script( 'mailster-amazonses-settings-script', $this->plugin_url . 'assets/js/script.js', array( 'jquery' ), MAILSTER_AMAZONSES_VERSION );
 		$verified = mailster_option( 'amazonses_verified' );
-
 		include $this->plugin_path . '/views/settings.php';
-
 	}
 
 
@@ -283,7 +285,6 @@ class MailsterAmazonSES {
 		}
 
 		return $result->get( 'EmailIdentities' );
-
 	}
 
 
@@ -292,76 +293,74 @@ class MailsterAmazonSES {
 		if ( $timestamp = wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
 			wp_unschedule_event( $timestamp, 'mailster_amazonses_cron' );
 		}
+
 		// only if delivery method is amazonses
-		if ( $options['deliverymethod'] == 'amazonses' ) {
+		if ( $options['deliverymethod'] !== 'amazonses' ) {
+			return $options;
+		}
 
-			// only on the settings page
-			if ( isset( $_POST['mailster_options'] ) ) {
+		if ( 'amazonsns' != $options['amazonses_bouncehandling'] ) {
+			delete_option( 'mailster_amazonsns_last_response' );
+			unset( $options['amazonses_key'] );
+		}
 
-				if ( 'amazonsns' != $options['amazonses_bouncehandling'] ) {
-					delete_option( 'mailster_amazonsns_last_response' );
-					unset( $options['amazonses_key'] );
-				}
+		if ( isset( $options['amazonses_key'] ) && empty( $options['amazonses_key'] ) ) {
+			delete_option( 'mailster_amazonsns_last_response' );
+			unset( $options['amazonses_key'] );
+		}
 
-				if ( isset( $options['amazonses_key'] ) && empty( $options['amazonses_key'] ) ) {
-					delete_option( 'mailster_amazonsns_last_response' );
-					unset( $options['amazonses_key'] );
-				}
+		if ( mailster_option( 'amazonses_endpoint' ) != $options['amazonses_endpoint'] ) {
+			delete_option( 'mailster_amazonsns_last_response' );
+			$options['amazonses_key'] = md5( uniqid() );
+		}
 
-				if ( mailster_option( 'amazonses_endpoint' ) != $options['amazonses_endpoint'] ) {
-					delete_option( 'mailster_amazonsns_last_response' );
-					$options['amazonses_key'] = md5( uniqid() );
-				}
+		remove_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
+		mailster_update_option( 'amazonses_access_key', $options['amazonses_access_key'], true );
+		mailster_update_option( 'amazonses_secret_key', $options['amazonses_secret_key'], true );
+		mailster_update_option( 'amazonses_endpoint', $options['amazonses_endpoint'], true );
 
-				remove_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
-				mailster_update_option( 'amazonses_access_key', $options['amazonses_access_key'], true );
-				mailster_update_option( 'amazonses_secret_key', $options['amazonses_secret_key'], true );
-				mailster_update_option( 'amazonses_endpoint', $options['amazonses_endpoint'], true );
+		$limits = $this->getquota( false );
 
-				$limits = $this->getquota( false );
+		if ( is_wp_error( $limits ) ) {
 
-				if ( is_wp_error( $limits ) ) {
+			add_settings_error( 'mailster_options', 'mailster_options', __( 'An error occurred:', 'mailster-amazonses' ) . '<br>' . $limits->get_error_message() );
+			$options['amazonses_verified'] = false;
 
-					add_settings_error( 'mailster_options', 'mailster_options', __( 'An error occurred:', 'mailster-amazonses' ) . '<br>' . $limits->get_error_message() );
-					$options['amazonses_verified'] = false;
+		} else {
 
-				} else {
+			$options['amazonses_verified'] = true;
 
-					$options['amazonses_verified'] = true;
+			if ( $limits && $options['amazonses_autoupdate'] ) {
+				$options['send_limit']  = $limits['limit'];
+				$options['send_period'] = 24;
+				$options['send_delay']  = $limits['rate'];
 
-					if ( $limits && $options['amazonses_autoupdate'] ) {
-						$options['send_limit']  = $limits['limit'];
-						$options['send_period'] = 24;
-						$options['send_delay']  = $limits['rate'];
+				update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
+				update_option( '_transient__mailster_send_period', $limits['sent'] );
 
-						update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
-						update_option( '_transient__mailster_send_period', $limits['sent'] );
-
-						add_settings_error( 'mailster_options', 'mailster_options', __( 'Send limit has been adjusted to your Amazon SES limits', 'mailster-amazonses' ) );
-					}
-				}
+				add_settings_error( 'mailster_options', 'mailster_options', __( 'Send limit has been adjusted to your Amazon SES limits', 'mailster-amazonses' ) );
 			}
+		}
 
-			if ( $options['amazonses_autoupdate'] ) {
-				if ( ! wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
-					wp_schedule_event( time(), 'hourly', 'mailster_amazonses_cron' );
-				}
+		if ( $options['amazonses_autoupdate'] ) {
+			if ( ! wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
+				wp_schedule_event( time(), 'hourly', 'mailster_amazonses_cron' );
 			}
+		}
 
-			if ( function_exists( 'fsockopen' ) && $options['amazonses_smtp'] ) {
-				$host = 'email-smtp.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com';
-				$port = $options['amazonses_secure'] == 'tls' ? 587 : 465;
-				$conn = @fsockopen( $host, $port, $errno, $errstr, 5 );
+		if ( function_exists( 'fsockopen' ) && $options['amazonses_smtp'] ) {
+			$host = 'email-smtp.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com';
+			$port = $options['amazonses_secure'] == 'tls' ? 587 : 465;
+			$conn = @fsockopen( $host, $port, $errno, $errstr, 5 );
 
-				if ( is_resource( $conn ) ) {
+			if ( is_resource( $conn ) ) {
 
-					fclose( $conn );
+				fclose( $conn );
 
-				} else {
+			} else {
 
-					add_settings_error( 'mailster_options', 'mailster_options', sprintf( __( 'Not able to use Amazon SES via SMTP cause of the blocked port %s! Please try a different connection, send without SMTP or choose a different delivery method!', 'mailster-amazonses' ), $port ) );
+				add_settings_error( 'mailster_options', 'mailster_options', sprintf( __( 'Not able to use Amazon SES via SMTP cause of the blocked port %s! Please try a different connection, send without SMTP or choose a different delivery method!', 'mailster-amazonses' ), $port ) );
 
-				}
 			}
 		}
 
@@ -513,7 +512,6 @@ class MailsterAmazonSES {
 			exit;
 
 		}
-
 	}
 
 
@@ -566,7 +564,5 @@ class MailsterAmazonSES {
 				wp_unschedule_event( $timestamp, 'mailster_amazonses_cron' );
 			}
 		}
-
 	}
-
 }

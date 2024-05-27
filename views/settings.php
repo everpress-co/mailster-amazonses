@@ -1,8 +1,11 @@
 <?php $amazonses_key = mailster_option( 'amazonses_key', md5( uniqid() ) ); ?>
+
 <table class="form-table">
 	<tr valign="top">
 		<th scope="row">&nbsp;</th>
-		<td><p class="description"><?php printf( esc_html__( 'You need to create %s to work with Amazon SES', 'mailster-amazonses' ), '<a href="https://console.aws.amazon.com/iam/home?#security_credential" class="external">Access Keys</a>' ); ?></p>
+		<td>
+		<p class="alignright"><?php echo mailster()->beacon( '611bb67ab37d837a3d0e4790' ); ?></p>
+		<p class="description"><?php printf( esc_html__( 'You need to create %s to work with Amazon SES', 'mailster-amazonses' ), '<a href="https://console.aws.amazon.com/iam/home?#security_credential" class="external">Access Keys</a>' ); ?></p>
 		<p class="description"><?php printf( esc_html__( 'You have to %s to send mails to unverified mails', 'mailster-amazonses' ), '<a href="http://aws.amazon.com/ses/fullaccessrequest/" class="external">request Production Access</a>' ); ?></p>
 		</td>
 	</tr>
@@ -30,10 +33,12 @@
 	<tr valign="top">
 		<th scope="row">&nbsp;</th>
 		<td>
+		<?php if ( mailster_option( 'amazonses_access_key' ) ) : ?>
 			<?php if ( $verified ) : ?>
 			<span style="color:#3AB61B">&#10004;</span> <?php esc_html_e( 'Your credentials are ok!', 'mailster-amazonses' ); ?>
 			<?php else : ?>
 			<span style="color:#D54E21">&#10006;</span> <?php esc_html_e( 'Your credentials are WRONG!', 'mailster-amazonses' ); ?>
+			<?php endif; ?>
 			<?php endif; ?>
 			<input type="hidden" name="mailster_options[amazonses_verified]" value="<?php esc_attr_e( $verified ); ?>">
 		</td>
@@ -111,8 +116,8 @@
 		<th scope="row"><?php esc_html_e( 'Update Limits', 'mailster-amazonses' ); ?></th>
 		<td><label><input type="hidden" name="mailster_options[amazonses_autoupdate]" value=""><input type="checkbox" name="mailster_options[amazonses_autoupdate]" value="1" <?php checked( mailster_option( 'amazonses_autoupdate' ), true ); ?>> <?php esc_html_e( 'auto update send limits (recommended)', 'mailster-amazonses' ); ?> </label></td>
 	</tr>
-	<tr valign="top">
-		<th scope="row"><?php esc_html_e( 'Bounce Handling via', 'mailster-amazonses' ); ?></th>
+	<tr valign="top" class="hide-on-setup">
+		<th scope="row"><?php esc_html_e( 'Bounce Handling via', 'mailster-amazonses' ); ?>	<?php echo mailster()->beacon( '611bb03cb55c2b04bf6df0b1' ); ?></th>
 		<td>
 		<select name="mailster_options[amazonses_bouncehandling]" class="mailster-amazonses-bouncehandling">
 			<option value="" <?php selected( ! mailster_option( 'amazonses_bouncehandling' ) ); ?>>Mailster's Bounce Settings</option>
