@@ -12,7 +12,7 @@ License: GPLv2 or later
 */
 
 
-define( 'MAILSTER_AMAZONSES_VERSION', '2.13.0' );
+define( 'MAILSTER_AMAZONSES_VERSION', '2.14.0' );
 define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '4.0' );
 define( 'MAILSTER_AMAZONSES_FILE', __FILE__ );
 
