@@ -1,0 +1,27 @@
+{
+	"name": "mailster-amazonses",
+	"version": "2.15.0",
+	"author": "everpress",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start"
+	},
+	"files": [
+		"build",
+		"classes",
+		"vendor",
+		"includes",
+		"assets",
+		"mailster-amazonses.php"
+	],
+	"devDependencies": {
+		"@wordpress/env": "^10.13.0",
+		"@wordpress/scripts": "^30.6.0"
+	}
+}
