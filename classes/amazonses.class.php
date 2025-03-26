@@ -119,8 +119,7 @@ class MailsterAmazonSES {
 
 		} else {
 
-			// add bounce address only if PHPMailer is > 5.2.7
-			if ( $mailobject->bouncemail && version_compare( $mailobject->mailer->Version, '5.2.7', '>' ) ) {
+			if ( $mailobject->bouncemail ) {
 				$mailobject->add_header( 'Return-Path', '<' . trim( $mailobject->bouncemail ) . '>' );
 			}
 
