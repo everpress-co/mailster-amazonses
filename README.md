@@ -3,8 +3,8 @@
 Contributors: everpress, mailster, xaverb  
 Tags: amazon, ses, mailster, newsletter, mailsteresp  
 Requires at least: 6.0  
-Tested up to: 6.5  
-Stable tag: 2.14.0  
+Tested up to: 6.8  
+Stable tag: 2.15.0  
 Requires PHP: 7.4
 License: GPLv2 or later  
 Author: EverPress  
@@ -27,6 +27,10 @@ Uses Amazon's Simple Email Service (SES) to deliver emails for the [Mailster New
 ![Option Interface.](https://ps.w.org/mailster-amazonses/assets/screenshot-1.png)
 
 ## Changelog
+
+### 2.15.0
+
+- fixed: error with missing $Version property in PHPMailer
 
 ### 2.14.0
 
