@@ -1,6 +1,6 @@
 {
 	"name": "mailster-amazonses",
-	"version": "2.15.0",
+	"version": "2.16.0",
 	"author": "everpress",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
@@ -13,7 +13,7 @@
 		"start": "wp-scripts start"
 	},
 	"files": [
-		"build",
+		"views",
 		"classes",
 		"vendor",
 		"includes",
