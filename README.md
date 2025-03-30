@@ -3,7 +3,7 @@
 Contributors: everpress, mailster, xaverb  
 Tags: amazon, ses, mailster, newsletter, mailsteresp  
 Requires at least: 6.0  
-Tested up to: 6.8  
+Tested up to: 6.7  
 Stable tag: 2.16.0  
 Requires PHP: 7.4
 License: GPLv2 or later  
