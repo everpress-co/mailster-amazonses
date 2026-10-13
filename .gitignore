@@ -13,6 +13,7 @@ build
 
 # Dependency directories
 node_modules/
+vendor/
 
 # Optional npm cache directory
 .npm
@@ -28,3 +29,13 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# Cursor (local only)
+.cursor/
+
+# CI-generated WordPress.org readme (not committed)
+readme.txt
+
+# OS
+.DS_Store
+Thumbs.db

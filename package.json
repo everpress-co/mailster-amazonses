@@ -1,27 +1,41 @@
 {
 	"name": "mailster-amazonses",
 	"version": "2.16.0",
+	"description": "Amazon SES delivery integration for Mailster.",
 	"author": "everpress",
 	"license": "GPL-2.0-or-later",
-	"scripts": {
-		"build": "wp-scripts build",
-		"format": "wp-scripts format",
-		"lint:css": "wp-scripts lint-style",
-		"lint:js": "wp-scripts lint-js",
-		"packages-update": "wp-scripts packages-update",
-		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start"
+	"keywords": [
+		"amazonses",
+		"mailster",
+		"newsletter",
+		"email"
+	],
+	"homepage": "https://mailster.co",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/evrpress/mailster-amazonses.git"
+	},
+	"bugs": {
+		"url": "https://github.com/evrpress/mailster-amazonses/issues"
 	},
 	"files": [
 		"views",
 		"classes",
 		"vendor",
-		"includes",
 		"assets",
-		"mailster-amazonses.php"
+		"readme.txt",
+		"*.php"
 	],
 	"devDependencies": {
-		"@wordpress/env": "^10.13.0",
-		"@wordpress/scripts": "^30.6.0"
+		"@wordpress/env": "^11.17.0",
+		"@wordpress/scripts": "^36.1.0"
+	},
+	"scripts": {
+		"format": "wp-scripts format",
+		"lint:js": "wp-scripts lint-js assets/js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"lint": "npm run lint:js && npm run lint:pkg-json",
+		"lint:pkg-json": "wp-scripts lint-pkg-json"
 	}
 }

@@ -1,0 +1,17 @@
+{
+	"name": "everpress/mailster-amazonses",
+	"description": "Dev dependencies for Mailster AmazonSES Integration",
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.7"
+	},
+	"scripts": {
+		"check-cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
+		"fix-cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}
