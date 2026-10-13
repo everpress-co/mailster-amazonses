@@ -13,7 +13,7 @@ jobs:
     name: Update Assets and Readme
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Convert README.md to WordPress readme.txt
         uses: everpress-co/action-md2wp@main
