@@ -1,4 +1,14 @@
-<?php $amazonses_key = mailster_option( 'amazonses_key', md5( uniqid() ) ); ?>
+<?php
+/**
+ * Amazon SES delivery settings fields for the Mailster delivery tab.
+ *
+ * Included from MailsterAmazonSES::deliverytab(). Expects `$verified` in scope.
+ *
+ * @since 1.2
+ */
+
+$amazonses_key = mailster_option( 'amazonses_key', md5( uniqid() ) );
+?>
 
 <table class="form-table">
 	<tr valign="top">

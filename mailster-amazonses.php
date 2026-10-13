@@ -12,8 +12,25 @@ License: GPLv2 or later
 */
 
 
+/**
+ * Current plugin version.
+ *
+ * @since 1.0
+ */
 define( 'MAILSTER_AMAZONSES_VERSION', '2.16.0' );
+
+/**
+ * Minimum required Mailster version.
+ *
+ * @since 1.0
+ */
 define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '4.0' );
+
+/**
+ * Absolute path to the main plugin file.
+ *
+ * @since 1.2
+ */
 define( 'MAILSTER_AMAZONSES_FILE', __FILE__ );
 
 require_once __DIR__ . '/classes/amazonses.class.php';

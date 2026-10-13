@@ -1,10 +1,46 @@
 <?php
 
+/**
+ * Amazon SES delivery integration for Mailster.
+ *
+ * @since 1.0
+ */
 class MailsterAmazonSES {
 
+	/**
+	 * Absolute filesystem path to the plugin directory.
+	 *
+	 * @since 1.0
+	 *
+	 * @var string
+	 */
 	private $plugin_path;
+
+	/**
+	 * URL to the plugin directory.
+	 *
+	 * @since 1.0
+	 *
+	 * @var string
+	 */
 	private $plugin_url;
+
+	/**
+	 * Cached AWS SES v2 client instance.
+	 *
+	 * @since 2.2
+	 *
+	 * @var \Mailster\Aws3\Aws\SesV2\SesV2Client|null
+	 */
 	private $aws;
+
+	/**
+	 * Map of AWS SES region codes to display names.
+	 *
+	 * @since 2.6
+	 *
+	 * @var array
+	 */
 	private $endpoints = array(
 		'us-east-1'      => 'US East (N. Virginia)',
 		'us-east-2'      => 'US East (Ohio)',
@@ -35,6 +71,13 @@ class MailsterAmazonSES {
 	);
 
 
+	/**
+	 * Sets up paths, activation hooks, textdomain, and the init hook.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 
 		$this->plugin_path = plugin_dir_path( MAILSTER_AMAZONSES_FILE );
@@ -49,6 +92,13 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Registers Mailster delivery hooks when Mailster is available.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function init() {
 
 		if ( ! function_exists( 'mailster' ) ) {
@@ -87,6 +137,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Configures PHPMailer for Amazon SES SMTP or disables DKIM for the API path.
+	 *
+	 * @since 1.0
+	 *
+	 * @param object $mailobject Mailster mail object being prepared for send.
+	 * @return void
+	 */
 	public function initsend( $mailobject ) {
 
 		if ( mailster_option( 'amazonses_smtp' ) ) {
@@ -110,6 +168,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Runs Mailster pre-send and sets bounce Return-Path for the SES API path.
+	 *
+	 * @since 1.0
+	 *
+	 * @param object $mailobject Mailster mail object before send.
+	 * @return void
+	 */
 	public function presend( $mailobject ) {
 
 		if ( mailster_option( 'amazonses_smtp' ) ) {
@@ -130,6 +196,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Sends the message via SMTP or the Amazon SES SendEmail API.
+	 *
+	 * @since 1.0
+	 *
+	 * @param object $mailobject Mailster mail object to send.
+	 * @return void
+	 */
 	public function dosend( $mailobject ) {
 
 		if ( mailster_option( 'amazonses_smtp' ) ) {
@@ -164,6 +238,15 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Returns the SES client or calls a client method with plugin credentials.
+	 *
+	 * @since 2.2
+	 *
+	 * @param string|null $method Optional. SES client method name. Default null to return the client.
+	 * @param array       $args   Optional. Arguments passed to the client method. Default empty array.
+	 * @return \Mailster\Aws3\Aws\SesV2\SesV2Client|\Mailster\Aws3\Aws\Result|WP_Error Client, API result, or error.
+	 */
 	private function aws( $method = null, $args = array() ) {
 
 		if ( ! $this->aws ) {
@@ -214,6 +297,14 @@ class MailsterAmazonSES {
 		}
 	}
 
+	/**
+	 * Fetches Amazon SES send quota and optionally stores Mailster send limits.
+	 *
+	 * @since 1.0
+	 *
+	 * @param bool $save Optional. Whether to update Mailster limits from the quota. Default true.
+	 * @return array|WP_Error Associative limits (`sent`, `limit`, `rate`) or error.
+	 */
 	public function getquota( $save = true ) {
 
 		$account = $this->aws( 'GetAccount' );
@@ -243,6 +334,14 @@ class MailsterAmazonSES {
 		return $limits;
 	}
 
+	/**
+	 * Adds Amazon SES-specific messages to Mailster subscriber error strings.
+	 *
+	 * @since 1.0
+	 *
+	 * @param array $errors Existing subscriber error messages.
+	 * @return array Filtered error messages.
+	 */
 	public function subscriber_errors( $errors ) {
 		$errors[] = 'Address blacklisted';
 		$errors[] = 'Invalid domain name';
@@ -253,12 +352,27 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Registers Amazon SES as a Mailster delivery method.
+	 *
+	 * @since 1.0
+	 *
+	 * @param array $delivery_methods Existing delivery method slug => label map.
+	 * @return array Delivery methods including AmazonSES.
+	 */
 	public function delivery_method( $delivery_methods ) {
 		$delivery_methods['amazonses'] = 'AmazonSES';
 		return $delivery_methods;
 	}
 
 
+	/**
+	 * Enqueues settings script and renders the Amazon SES delivery settings tab.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function deliverytab() {
 
 		wp_enqueue_script( 'mailster-amazonses-settings-script', $this->plugin_url . 'assets/js/script.js', array( 'jquery' ), MAILSTER_AMAZONSES_VERSION );
@@ -267,6 +381,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Requests SES verification for an email identity.
+	 *
+	 * @since 1.0
+	 *
+	 * @param string $emailaddress Email address to verify with Amazon SES.
+	 * @return bool True when the API returns HTTP 200, false otherwise.
+	 */
 	public function verify_email( $emailaddress ) {
 
 		$result = $this->aws( 'createEmailIdentity', array( 'EmailIdentity' => $emailaddress ) );
@@ -275,6 +397,13 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Lists email identities registered with Amazon SES for the account.
+	 *
+	 * @since 1.0
+	 *
+	 * @return array|false Identity list on success, false on API error.
+	 */
 	public function list_identities() {
 
 		$result = $this->aws( 'ListEmailIdentities' );
@@ -287,6 +416,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Validates Amazon SES options and syncs send limits when credentials work.
+	 *
+	 * @since 1.0
+	 *
+	 * @param array $options Mailster options being saved.
+	 * @return array Filtered options.
+	 */
 	public function verify_options( $options ) {
 
 		if ( $timestamp = wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
@@ -367,6 +504,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Writes Amazon SES quota values into Mailster send limit options.
+	 *
+	 * @since 1.0
+	 *
+	 * @param array $limits Quota values with `sent`, `limit`, and `rate` keys.
+	 * @return void
+	 */
 	public function update_limits( $limits ) {
 		mailster_update_option( 'send_limit', $limits['limit'] );
 		mailster_update_option( 'send_period', 24 );
@@ -377,6 +522,13 @@ class MailsterAmazonSES {
 		update_option( '_transient__mailster_send_period', $limits['sent'] );
 	}
 
+	/**
+	 * Handles Amazon SNS bounce and complaint notifications for Mailster.
+	 *
+	 * @since 2.0
+	 *
+	 * @return void
+	 */
 	private function handle_sns() {
 
 		if ( 'amazonsns' == mailster_option( 'amazonses_bouncehandling' ) && mailster_option( 'amazonses_key' ) == $_GET['mailster_amazonsns'] ) {
@@ -480,7 +632,7 @@ class MailsterAmazonSES {
 										// Amazon SES received an attachment rejected bounce. You may be able to successfully send to this recipient if you remove or change the attachment.
 										case 'AttachmentRejected':
 											break;
-										default;
+										default:
 											if ( version_compare( MAILSTER_VERSION, '3.0', '<' ) ) {
 												mailster( 'subscribers' )->bounce( $subscriber->ID, $campaign_id, true, $status );
 											} else {
@@ -514,6 +666,13 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Shows an admin notice when Mailster is missing or too old.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function notice() {
 		?>
 		<div class="error">
@@ -525,6 +684,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Sets default options and schedules the quota cron on plugin activation.
+	 *
+	 * @since 1.0
+	 *
+	 * @param bool $network_wide Whether the plugin is network-activated.
+	 * @return void
+	 */
 	public function activate( $network_wide ) {
 
 		if ( function_exists( 'mailster' ) ) {
@@ -551,6 +718,14 @@ class MailsterAmazonSES {
 	}
 
 
+	/**
+	 * Resets delivery method and clears the quota cron on plugin deactivation.
+	 *
+	 * @since 1.0
+	 *
+	 * @param bool $network_wide Whether the plugin was network-activated.
+	 * @return void
+	 */
 	public function deactivate( $network_wide ) {
 
 		if ( function_exists( 'mailster' ) ) {
