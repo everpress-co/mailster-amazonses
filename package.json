@@ -27,8 +27,8 @@
 		"*.php"
 	],
 	"devDependencies": {
-		"@wordpress/env": "^10.13.0",
-		"@wordpress/scripts": "^30.6.0"
+		"@wordpress/env": "^11.17.0",
+		"@wordpress/scripts": "^36.1.0"
 	},
 	"scripts": {
 		"format": "wp-scripts format",
