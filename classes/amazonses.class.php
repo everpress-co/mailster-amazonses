@@ -1,4 +1,9 @@
 <?php
+/**
+ * Amazon SES delivery integration class.
+ *
+ * @package mailster-amazonses
+ */
 
 /**
  * Amazon SES delivery integration for Mailster.
@@ -112,17 +117,17 @@ class MailsterAmazonSES {
 
 			add_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
 
-			if ( mailster_option( 'deliverymethod' ) == 'amazonses' ) {
+			if ( 'amazonses' === mailster_option( 'deliverymethod' ) ) {
 
 				add_action( 'mailster_initsend', array( $this, 'initsend' ) );
 				add_action( 'mailster_presend', array( $this, 'presend' ) );
 				add_action( 'mailster_dosend', array( $this, 'dosend' ) );
 				add_filter( 'mailster_subscriber_errors', array( $this, 'subscriber_errors' ) );
 
-				if ( is_admin() && isset( $_GET['mailster_amazonses_verifyemail'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'verify_email' ) ) {
-					$this->verify_email( esc_attr( $_GET['mailster_amazonses_verifyemail'] ) );
+				if ( is_admin() && isset( $_GET['mailster_amazonses_verifyemail'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'verify_email' ) ) {
+					$this->verify_email( sanitize_email( wp_unslash( $_GET['mailster_amazonses_verifyemail'] ) ) );
 
-					wp_redirect( remove_query_arg( array( 'mailster_amazonses_verifyemail', '_wpnonce' ) ) );
+					wp_safe_redirect( remove_query_arg( array( 'mailster_amazonses_verifyemail', '_wpnonce' ) ) );
 					exit;
 				}
 
@@ -154,7 +159,7 @@ class MailsterAmazonSES {
 			$mailobject->mailer->Mailer        = 'smtp';
 			$mailobject->mailer->SMTPSecure    = $secure;
 			$mailobject->mailer->Host          = 'email-smtp.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com';
-			$mailobject->mailer->Port          = $secure == 'tls' ? 587 : 465;
+			$mailobject->mailer->Port          = ( 'tls' === $secure ) ? 587 : 465;
 			$mailobject->mailer->SMTPAuth      = true;
 			$mailobject->mailer->Username      = mailster_option( 'amazonses_smtp_user' );
 			$mailobject->mailer->Password      = mailster_option( 'amazonses_smtp_pwd' );
@@ -162,7 +167,7 @@ class MailsterAmazonSES {
 
 		} else {
 
-			// disable dkim
+			// Disable DKIM for the SES API path.
 			$mailobject->dkim = false;
 		}
 	}
@@ -180,7 +185,7 @@ class MailsterAmazonSES {
 
 		if ( mailster_option( 'amazonses_smtp' ) ) {
 
-			// use pre_send from the main class
+			// Use pre_send from the main class.
 			$mailobject->pre_send();
 
 		} else {
@@ -189,7 +194,7 @@ class MailsterAmazonSES {
 				$mailobject->add_header( 'Return-Path', '<' . trim( $mailobject->bouncemail ) . '>' );
 			}
 
-			// need the raw email body to send so we use the same option
+			// Need the raw email body to send so we use the same option.
 			$mailobject->pre_send();
 
 		}
@@ -208,7 +213,7 @@ class MailsterAmazonSES {
 
 		if ( mailster_option( 'amazonses_smtp' ) ) {
 
-			// use send from the main class
+			// Use send from the main class.
 			$mailobject->do_send();
 
 		} else {
@@ -228,7 +233,7 @@ class MailsterAmazonSES {
 			if ( is_wp_error( $result ) ) {
 				$mailobject->set_error( $result->get_error_message() );
 				$mailobject->sent = false;
-			} elseif ( 200 == $result->get( '@metadata' )['statusCode'] ) {
+			} elseif ( 200 === $result->get( '@metadata' )['statusCode'] ) {
 				$mailobject->sent = true;
 			} else {
 				$mailobject->set_error( 'unknown error' );
@@ -261,7 +266,7 @@ class MailsterAmazonSES {
 
 			require_once $this->plugin_path . 'vendor/autoload.php';
 
-			// for PHP < 8.0 problem with the Guzzle lib
+			// For PHP < 8.0 problem with the Guzzle lib.
 			if ( ! function_exists( 'idn_to_ascii' ) && ! defined( 'IDNA_DEFAULT' ) ) {
 				define( 'IDNA_DEFAULT', 0 );
 			}
@@ -289,7 +294,7 @@ class MailsterAmazonSES {
 		} catch ( \Mailster\Aws3\Aws\SesV2\Exception\SesV2Exception $e ) {
 			return new WP_Error( $e->getAwsErrorCode(), $e->getAwsErrorMessage() );
 		} catch ( \Exception $e ) {
-			// format error message
+			// Format error message.
 			$message = esc_html( $e->getMessage() );
 			$message = preg_replace( '/' . preg_quote( '&lt;ErrorResponse', '/' ) . '/', '<pre><code>&lt;ErrorResponse', $message, 1 );
 			$message = preg_replace( '/' . preg_quote( '&lt;/ErrorResponse&gt;', '/' ) . '/', '&lt;/ErrorResponse&gt;</code></pre>', $message, 1 );
@@ -345,7 +350,8 @@ class MailsterAmazonSES {
 	public function subscriber_errors( $errors ) {
 		$errors[] = 'Address blacklisted';
 		$errors[] = 'Invalid domain name';
-		if ( ( $key = array_search( 'SMTP Error: Data not accepted', $errors ) ) !== false ) {
+		$key      = array_search( 'SMTP Error: Data not accepted', $errors, true );
+		if ( false !== $key ) {
 			unset( $errors[ $key ] );
 		}
 		return $errors;
@@ -375,7 +381,7 @@ class MailsterAmazonSES {
 	 */
 	public function deliverytab() {
 
-		wp_enqueue_script( 'mailster-amazonses-settings-script', $this->plugin_url . 'assets/js/script.js', array( 'jquery' ), MAILSTER_AMAZONSES_VERSION );
+		wp_enqueue_script( 'mailster-amazonses-settings-script', $this->plugin_url . 'assets/js/script.js', array( 'jquery' ), MAILSTER_AMAZONSES_VERSION, true );
 		$verified = mailster_option( 'amazonses_verified' );
 		include $this->plugin_path . '/views/settings.php';
 	}
@@ -393,7 +399,7 @@ class MailsterAmazonSES {
 
 		$result = $this->aws( 'createEmailIdentity', array( 'EmailIdentity' => $emailaddress ) );
 
-		return ! is_wp_error( $result ) && ( 200 == $result->get( '@metadata' )['statusCode'] );
+		return ! is_wp_error( $result ) && ( 200 === $result->get( '@metadata' )['statusCode'] );
 	}
 
 
@@ -426,16 +432,17 @@ class MailsterAmazonSES {
 	 */
 	public function verify_options( $options ) {
 
-		if ( $timestamp = wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
+		$timestamp = wp_next_scheduled( 'mailster_amazonses_cron' );
+		if ( $timestamp ) {
 			wp_unschedule_event( $timestamp, 'mailster_amazonses_cron' );
 		}
 
-		// only if delivery method is amazonses
-		if ( $options['deliverymethod'] !== 'amazonses' ) {
+		// Only if delivery method is amazonses.
+		if ( 'amazonses' !== $options['deliverymethod'] ) {
 			return $options;
 		}
 
-		if ( 'amazonsns' != $options['amazonses_bouncehandling'] ) {
+		if ( 'amazonsns' !== $options['amazonses_bouncehandling'] ) {
 			delete_option( 'mailster_amazonsns_last_response' );
 			unset( $options['amazonses_key'] );
 		}
@@ -445,7 +452,7 @@ class MailsterAmazonSES {
 			unset( $options['amazonses_key'] );
 		}
 
-		if ( mailster_option( 'amazonses_endpoint' ) != $options['amazonses_endpoint'] ) {
+		if ( mailster_option( 'amazonses_endpoint' ) !== $options['amazonses_endpoint'] ) {
 			delete_option( 'mailster_amazonsns_last_response' );
 			$options['amazonses_key'] = md5( uniqid() );
 		}
@@ -486,15 +493,18 @@ class MailsterAmazonSES {
 
 		if ( function_exists( 'fsockopen' ) && $options['amazonses_smtp'] ) {
 			$host = 'email-smtp.' . mailster_option( 'amazonses_endpoint' ) . '.amazonaws.com';
-			$port = $options['amazonses_secure'] == 'tls' ? 587 : 465;
+			$port = ( 'tls' === $options['amazonses_secure'] ) ? 587 : 465;
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen -- Probing SMTP TCP connectivity, not WP filesystem.
 			$conn = @fsockopen( $host, $port, $errno, $errstr, 5 );
 
 			if ( is_resource( $conn ) ) {
 
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing SMTP probe socket.
 				fclose( $conn );
 
 			} else {
 
+				/* translators: %s: SMTP port number */
 				add_settings_error( 'mailster_options', 'mailster_options', sprintf( __( 'Not able to use Amazon SES via SMTP cause of the blocked port %s! Please try a different connection, send without SMTP or choose a different delivery method!', 'mailster-amazonses' ), $port ) );
 
 			}
@@ -517,7 +527,7 @@ class MailsterAmazonSES {
 		mailster_update_option( 'send_period', 24 );
 		mailster_update_option( 'send_delay', $limits['rate'] );
 
-		// always reset to 24 hours
+		// Always reset to 24 hours.
 		update_option( '_transient__mailster_send_period_timeout', $limits['sent'] > 0 );
 		update_option( '_transient__mailster_send_period', $limits['sent'] );
 	}
@@ -531,9 +541,19 @@ class MailsterAmazonSES {
 	 */
 	private function handle_sns() {
 
-		if ( 'amazonsns' == mailster_option( 'amazonses_bouncehandling' ) && mailster_option( 'amazonses_key' ) == $_GET['mailster_amazonsns'] ) {
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Amazon SNS / SES JSON property names.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- SNS authenticates via shared secret key in the query string.
 
-			if ( ! ( $data = file_get_contents( 'php://input' ) ) ) {
+		if ( ! isset( $_GET['mailster_amazonsns'] ) ) {
+			return;
+		}
+
+		$sns_key = sanitize_text_field( wp_unslash( $_GET['mailster_amazonsns'] ) );
+
+		if ( 'amazonsns' === mailster_option( 'amazonses_bouncehandling' ) && mailster_option( 'amazonses_key' ) === $sns_key ) {
+
+			$data = file_get_contents( 'php://input' );
+			if ( ! $data ) {
 				wp_die( 'This page handles the Bounces and messages from Amazon SNS for Mailster.', 'Mailster Amazon SNS Endpoint' );
 			}
 			$obj = json_decode( $data );
@@ -542,6 +562,7 @@ class MailsterAmazonSES {
 
 				case 'SubscriptionConfirmation':
 					if ( false === strpos( $obj->TopicArn, mailster_option( 'amazonses_endpoint' ) ) ) {
+						/* translators: 1: SNS topic ARN, 2: AWS region label */
 						mailster_notice( sprintf( __( 'The SNS Topic %1$s was not created in the correct region. Please create a new topic in the region %2$s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>', '"' . $this->endpoints[ mailster_option( 'amazonses_endpoint' ) ] . '"' ), 'error', false, 'amazonses-SubscriptionConfirmation' );
 						return;
 					}
@@ -549,10 +570,12 @@ class MailsterAmazonSES {
 					$response = wp_remote_get( $obj->SubscribeURL );
 					$code     = wp_remote_retrieve_response_code( $response );
 					$body     = (object) simplexml_load_string( wp_remote_retrieve_body( $response ) );
-					if ( 200 == $code ) {
+					if ( 200 === $code ) {
+						/* translators: %s: SNS topic ARN */
 						mailster_notice( sprintf( __( 'Mailster has successfully confirmed the Amazon SNS subscription to topic %s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>' ), 'notice', 360, 'amazonses-SubscriptionConfirmation' );
 					} else {
-						mailster_notice( sprintf( __( 'Mailster was not able to confirmed the Amazon SNS subscription to topic %s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>' ) . '<br><pre>' . print_r( $body, true ) . '</pre>', 'error', false, 'amazonses-SubscriptionConfirmation' );
+						/* translators: %s: SNS topic ARN */
+						mailster_notice( sprintf( __( 'Mailster was not able to confirmed the Amazon SNS subscription to topic %s.', 'mailster-amazonses' ), '<code>' . $obj->TopicArn . '</code>' ) . '<br><pre>' . esc_html( print_r( $body, true ) ) . '</pre>', 'error', false, 'amazonses-SubscriptionConfirmation' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Include SNS response body in admin notice.
 					}
 					break;
 
@@ -571,7 +594,7 @@ class MailsterAmazonSES {
 					if ( ! isset( $headers['X-Mailster-ID'] ) ) {
 						break;
 					}
-					if ( $headers['X-Mailster-ID'] != mailster_option( 'ID' ) ) {
+					if ( mailster_option( 'ID' ) !== $headers['X-Mailster-ID'] ) {
 						break;
 					}
 					if ( ! isset( $headers['X-Mailster'] ) ) {
@@ -584,7 +607,7 @@ class MailsterAmazonSES {
 					$campaign_id    = $headers['X-Mailster-Campaign'];
 					$campaign_index = null;
 
-					// get the campaign index
+					// Get the campaign index.
 					if ( false !== strpos( $campaign_id, '-' ) ) {
 						$campaign_index = absint( strrchr( $campaign_id, '-' ) );
 						$campaign_id    = absint( $campaign_id );
@@ -663,6 +686,9 @@ class MailsterAmazonSES {
 			exit;
 
 		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 
@@ -677,7 +703,7 @@ class MailsterAmazonSES {
 		?>
 		<div class="error">
 			<p>
-			<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=plugin&utm_term=AmazonSES">Mailster Newsletter Plugin</a>, at least version <strong><?php echo MAILSTER_AMAZONSES_REQUIRED_VERSION; ?></strong>. Plugin deactivated.
+			<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=plugin&utm_term=AmazonSES">Mailster Newsletter Plugin</a>, at least version <strong><?php echo esc_html( MAILSTER_AMAZONSES_REQUIRED_VERSION ); ?></strong>. Plugin deactivated.
 			</p>
 		</div>
 		<?php
@@ -692,9 +718,10 @@ class MailsterAmazonSES {
 	 * @param bool $network_wide Whether the plugin is network-activated.
 	 * @return void
 	 */
-	public function activate( $network_wide ) {
+	public function activate( $network_wide ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Signature required by register_activation_hook.
 
 		if ( function_exists( 'mailster' ) ) {
+			/* translators: %s: HTML link to Mailster delivery settings */
 			mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-amazonses' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', 360, 'delivery_method' );
 
 			if ( ! wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
@@ -726,15 +753,17 @@ class MailsterAmazonSES {
 	 * @param bool $network_wide Whether the plugin was network-activated.
 	 * @return void
 	 */
-	public function deactivate( $network_wide ) {
+	public function deactivate( $network_wide ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Signature required by register_deactivation_hook.
 
 		if ( function_exists( 'mailster' ) ) {
-			if ( mailster_option( 'deliverymethod' ) == 'amazonses' ) {
+			if ( 'amazonses' === mailster_option( 'deliverymethod' ) ) {
 				mailster_update_option( 'deliverymethod', 'simple' );
+				/* translators: %s: HTML link to Mailster delivery settings */
 				mailster_notice( sprintf( __( 'Change the delivery method on the %s!', 'mailster-amazonses' ), '<a href="edit.php?post_type=newsletter&page=mailster_settings&mailster_remove_notice=delivery_method#delivery">Settings Page</a>' ), '', 360, 'delivery_method' );
 			}
 
-			if ( $timestamp = wp_next_scheduled( 'mailster_amazonses_cron' ) ) {
+			$timestamp = wp_next_scheduled( 'mailster_amazonses_cron' );
+			if ( $timestamp ) {
 				wp_unschedule_event( $timestamp, 'mailster_amazonses_cron' );
 			}
 		}
