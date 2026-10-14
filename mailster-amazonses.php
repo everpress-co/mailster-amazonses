@@ -4,7 +4,7 @@
  * Requires Plugins: mailster
  * Plugin URI: https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=plugin&utm_term=AmazonSES
  * Description: Uses Amazon's Simple Email Service (SES) to deliver emails for the Mailster Newsletter Plugin for WordPress.
- * Version: 2.16.0
+ * Version: 3.0.0
  * Requires PHP: 8.1
  * Author: EverPress
  * Author URI: https://mailster.co
@@ -19,7 +19,7 @@
  *
  * @since 1.0
  */
-define( 'MAILSTER_AMAZONSES_VERSION', '2.16.0' );
+define( 'MAILSTER_AMAZONSES_VERSION', '3.0.0' );
 
 /**
  * Minimum required Mailster version.
@@ -31,7 +31,7 @@ define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '4.0' );
 /**
  * Minimum required PHP version.
  *
- * @since [Unreleased]
+ * @since 3.0.0
  */
 define( 'MAILSTER_AMAZONSES_REQUIRED_PHP', '8.1' );
 

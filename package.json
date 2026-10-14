@@ -1,6 +1,6 @@
 {
 	"name": "mailster-amazonses",
-	"version": "2.16.0",
+	"version": "3.0.0",
 	"description": "Amazon SES delivery integration for Mailster.",
 	"author": "everpress",
 	"license": "GPL-2.0-or-later",
