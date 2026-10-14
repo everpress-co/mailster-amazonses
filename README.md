@@ -5,7 +5,7 @@ Tags: mailster, ses, amazon, newsletter, mailsteresp
 Requires at least: 6.0  
 Tested up to: 6.8  
 Stable tag: 2.16.0  
-Requires PHP: 8.1
+Requires PHP: 8.1  
 License: GPLv2 or later  
 Author: EverPress  
 Author URI: <https://mailster.co>
