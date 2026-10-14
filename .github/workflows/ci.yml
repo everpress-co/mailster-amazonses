@@ -22,7 +22,7 @@ jobs:
           jq -e '.scripts["lint"]' package.json > /dev/null || (echo "lint script is required" && exit 1)
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
