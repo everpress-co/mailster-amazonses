@@ -106,6 +106,19 @@ class MailsterAmazonSES {
 	 */
 	public function init() {
 
+		if ( ! $this->meets_php_requirements() ) {
+
+			add_action( 'admin_notices', array( $this, 'php_version_notice' ) );
+
+			if ( function_exists( 'mailster' ) ) {
+				add_filter( 'mailster_delivery_methods', array( $this, 'delivery_method' ) );
+				add_action( 'mailster_deliverymethod_tab_amazonses', array( $this, 'deliverytab' ) );
+				add_filter( 'mailster_verify_options', array( $this, 'verify_options' ) );
+			}
+
+			return;
+		}
+
 		if ( ! function_exists( 'mailster' ) ) {
 
 			add_action( 'admin_notices', array( $this, 'notice' ) );
@@ -254,6 +267,10 @@ class MailsterAmazonSES {
 	 */
 	private function aws( $method = null, $args = array() ) {
 
+		if ( ! $this->meets_php_requirements() ) {
+			return new WP_Error( 'mailster_amazonses_php_version', $this->get_php_version_notice_message() );
+		}
+
 		if ( ! $this->aws ) {
 
 			if ( ! mailster_option( 'amazonses_access_key' ) ) {
@@ -376,6 +393,11 @@ class MailsterAmazonSES {
 	 */
 	public function deliverytab() {
 
+		if ( ! $this->meets_php_requirements() ) {
+			$this->render_php_version_notice( true );
+			return;
+		}
+
 		wp_enqueue_script( 'mailster-amazonses-settings-script', $this->plugin_url . 'assets/js/script.js', array( 'jquery' ), MAILSTER_AMAZONSES_VERSION, true );
 		$verified = mailster_option( 'amazonses_verified' );
 		include $this->plugin_path . '/views/settings.php';
@@ -426,6 +448,10 @@ class MailsterAmazonSES {
 	 * @return array Filtered options.
 	 */
 	public function verify_options( $options ) {
+
+		if ( ! $this->meets_php_requirements() ) {
+			return $options;
+		}
 
 		$timestamp = wp_next_scheduled( 'mailster_amazonses_cron' );
 		if ( $timestamp ) {
@@ -700,6 +726,65 @@ class MailsterAmazonSES {
 			<p>
 			<strong>AmazonSES integration for Mailster</strong> requires the <a href="https://mailster.co/?utm_campaign=wporg&utm_source=wordpress.org&utm_medium=plugin&utm_term=AmazonSES">Mailster Newsletter Plugin</a>, at least version <strong><?php echo esc_html( MAILSTER_AMAZONSES_REQUIRED_VERSION ); ?></strong>. Plugin deactivated.
 			</p>
+		</div>
+		<?php
+	}
+
+
+	/**
+	 * Outputs an admin notice when PHP is below the required version.
+	 *
+	 * @since [Unreleased]
+	 *
+	 * @return void
+	 */
+	public function php_version_notice() {
+		$this->render_php_version_notice( false );
+	}
+
+
+	/**
+	 * Whether the site PHP version meets plugin requirements.
+	 *
+	 * @since [Unreleased]
+	 *
+	 * @return bool
+	 */
+	private function meets_php_requirements() {
+		return version_compare( PHP_VERSION, MAILSTER_AMAZONSES_REQUIRED_PHP, '>=' );
+	}
+
+
+	/**
+	 * Translatable message for unsupported PHP versions.
+	 *
+	 * @since [Unreleased]
+	 *
+	 * @return string
+	 */
+	private function get_php_version_notice_message() {
+		return sprintf(
+			/* translators: 1: required PHP version, 2: current PHP version */
+			__( 'Mailster AmazonSES Integration requires PHP %1$s or newer. This site is running PHP %2$s.', 'mailster-amazonses' ),
+			MAILSTER_AMAZONSES_REQUIRED_PHP,
+			PHP_VERSION
+		);
+	}
+
+
+	/**
+	 * Renders the unsupported-PHP notice for wp-admin or the delivery settings tab.
+	 *
+	 * @since [Unreleased]
+	 *
+	 * @param bool $inline True when shown inside the Mailster delivery tab.
+	 * @return void
+	 */
+	private function render_php_version_notice( $inline = false ) {
+		$classes = $inline ? 'notice notice-error inline' : 'notice notice-error';
+		?>
+		<div class="<?php echo esc_attr( $classes ); ?>">
+			<p><?php echo esc_html( $this->get_php_version_notice_message() ); ?></p>
 		</div>
 		<?php
 	}

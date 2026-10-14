@@ -29,6 +29,13 @@ define( 'MAILSTER_AMAZONSES_VERSION', '2.16.0' );
 define( 'MAILSTER_AMAZONSES_REQUIRED_VERSION', '4.0' );
 
 /**
+ * Minimum required PHP version.
+ *
+ * @since [Unreleased]
+ */
+define( 'MAILSTER_AMAZONSES_REQUIRED_PHP', '8.1' );
+
+/**
  * Absolute path to the main plugin file.
  *
  * @since 1.2
