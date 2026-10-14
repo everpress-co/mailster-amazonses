@@ -1,0 +1,50 @@
+{
+	"name": "everpress/mailster-amazonses",
+	"description": "Dependencies for Mailster AmazonSES Integration",
+	"require": {
+		"php": ">=8.1",
+		"aws/aws-sdk-php": "^3.369"
+	},
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+		"brianhenryie/strauss": "^0.31"
+	},
+	"scripts": {
+		"pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices",
+		"post-install-cmd": [
+			"@prefix-namespaces"
+		],
+		"post-update-cmd": [
+			"@prefix-namespaces"
+		],
+		"prefix-namespaces": [
+			"@strauss"
+		],
+		"strauss": "@php -r \"if (is_file('vendor/bin/strauss')) { passthru(PHP_BINARY . ' vendor/bin/strauss', \\$status); exit(\\$status); }\"",
+		"check-cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
+		"fix-cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
+	},
+	"extra": {
+		"aws/aws-sdk-php": [
+			"SesV2",
+			"Sts"
+		],
+		"strauss": {
+			"target_directory": "vendor-prefixed",
+			"namespace_prefix": "Mailster\\Aws3\\",
+			"classmap_prefix": "Mailster_Aws3_",
+			"packages": [
+				"aws/aws-sdk-php"
+			],
+			"delete_vendor_packages": true,
+			"optimize_autoloader": true
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"aws/aws-sdk-php": true
+		}
+	}
+}

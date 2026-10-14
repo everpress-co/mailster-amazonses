@@ -14,6 +14,10 @@ build
 # Dependency directories
 node_modules/
 
+# Composer / Strauss (rebuild: rm -rf vendor vendor-prefixed && composer install)
+vendor/
+vendor-prefixed/
+
 # Optional npm cache directory
 .npm
 
@@ -28,3 +32,13 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# Cursor (local only)
+.cursor/
+
+# CI-generated WordPress.org readme (not committed)
+readme.txt
+
+# OS
+.DS_Store
+Thumbs.db

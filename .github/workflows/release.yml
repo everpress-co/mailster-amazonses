@@ -1,95 +1,85 @@
----
-name: 'Create Release'
+name: Create Release
+
+# Slack (GitHub app): this channel should only post releases.
+# A bare /github subscribe turns on issues, pulls, commits, releases, and deployments.
+# Unsubscribe from all of those first, then subscribe to releases only:
+# /github unsubscribe everpress-co/mailster-amazonses
+# /github subscribe everpress-co/mailster-amazonses releases
 
 on:
-  workflow_dispatch:
   push:
     tags:
-      - '*'
+      - "*"
 
-permissions: write-all
+permissions:
+  contents: write
+
 jobs:
-  create-release:
-    name: 'Create Release'
-    runs-on: 'ubuntu-latest'
-
-    outputs:
-      version: ${{ steps.read_version.outputs.version }}
-      zip_name: ${{ steps.zip_project.outputs.zip_name }}
-
+  release:
+    name: Release
+    runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          fetch-depth: 0
+          php-version: "8.1"
+          tools: composer
+          coverage: none
 
-      - name: 🤔 Read version and project name from package.json
-        id: read_version
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Verify package.json and required scripts
         run: |
+          test -f package.json || (echo "package.json is required" && exit 1)
+          jq -e '.scripts["plugin-zip"]' package.json > /dev/null || (echo "plugin-zip script is required" && exit 1)
+          jq -e '.scripts["lint"]' package.json > /dev/null || (echo "lint script is required" && exit 1)
 
-          VERSION=$(jq -r '.version' < package.json)
-          PROJECT_NAME=$(jq -r '.name' < package.json)
-          echo "Version is $VERSION"
-          echo "Project name is $PROJECT_NAME"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "project_name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
 
-      - name: 🤞 Install dependencies
+      - name: CI gate
         run: |
-          [ -f "package.json" ] && npm install --no-fund --silent || echo "No package.json file found"
-          [ -f "composer.json" ] && composer install --no-dev --quiet || echo "No composer.json file found"
-          sudo apt-get install -y imagemagick
+          npm ci
+          npm run lint
+          npm run build --if-present
+          npm run plugin-zip
 
-      - name: 📚 Convert Readme.md to WordPress Readme
+      - name: Convert README.md to WordPress readme.txt
         uses: everpress-co/action-md2wp@main
 
-      - name: 🏗️ Build
-        run: |
-          npm run build --no-dev
+      - name: Remove Markdown readme before production zip
+        run: rm -f README.md
 
-      - name: 🏗️ Build assets
-        run: |
-          mkdir -p dist/assets
-          if [ -f .wordpress-org/banner.png ]; then
-            convert -resize 1544x500 .wordpress-org/banner.png dist/assets/banner-1544x500.png
-            convert -resize 772x250 .wordpress-org/banner.png dist/assets/banner-772x250.png
-          fi
-          if [ -f .wordpress-org/icon.png ]; then
-            convert -resize 256x256 .wordpress-org/icon.png dist/assets/icon-256x256.png
-            convert -resize 128x128 .wordpress-org/icon.png dist/assets/icon-128x128.png
-          fi
+      - name: Install production Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: 🧹 Cleanup
-        run: |
-          echo "Cleanup"
-          rm -f README.md
+      - name: Read project name
+        id: project
+        run: echo "name=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: 🗜️ Zip the contents of the dist directory with project name and version
-        id: zip_project
-        run: |
-          ZIP_NAME="${{ steps.read_version.outputs.project_name }}.zip"
-          npm run plugin-zip
-          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
-          #unzip into dist for WordPress Plugin Deploy
-          unzip $ZIP_NAME -d dist
+      - name: Create production plugin zip
+        run: npm run plugin-zip
 
-      - name: 📦 Create Release
-        if: ${{ !env.ACT }}
-        uses: 'marvinpinto/action-automatic-releases@v1.2.1'
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v3
         with:
-          repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          prerelease: false
-          files: |
-            ${{ steps.read_version.outputs.project_name }}.zip
+          files: ${{ steps.project.outputs.name }}.zip
+
+      - name: Prepare deploy directory
+        run: unzip "${{ steps.project.outputs.name }}.zip" -d deploy
 
       - name: WordPress Plugin Deploy
-        if: ${{ !env.ACT }}
         uses: 10up/action-wordpress-plugin-deploy@stable
         with:
           generate-zip: false
-          dry-run: false
         env:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          ASSETS_DIR: dist/assets
-          BUILD_DIR: dist/${{ steps.read_version.outputs.project_name }}
+          BUILD_DIR: deploy/${{ steps.project.outputs.name }}
