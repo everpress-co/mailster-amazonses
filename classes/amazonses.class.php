@@ -1,13 +1,8 @@
 <?php
 /**
- * Amazon SES delivery integration class.
- *
- * @package mailster-amazonses
- */
-
-/**
  * Amazon SES delivery integration for Mailster.
  *
+ * @package mailster-amazonses
  * @since 1.0
  */
 class MailsterAmazonSES {
