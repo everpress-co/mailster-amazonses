@@ -733,7 +733,7 @@ class MailsterAmazonSES {
 	/**
 	 * Outputs an admin notice when PHP is below the required version.
 	 *
-	 * @since [Unreleased]
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -745,7 +745,7 @@ class MailsterAmazonSES {
 	/**
 	 * Whether the site PHP version meets plugin requirements.
 	 *
-	 * @since [Unreleased]
+	 * @since 3.0.0
 	 *
 	 * @return bool
 	 */
@@ -757,7 +757,7 @@ class MailsterAmazonSES {
 	/**
 	 * Translatable message for unsupported PHP versions.
 	 *
-	 * @since [Unreleased]
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -774,7 +774,7 @@ class MailsterAmazonSES {
 	/**
 	 * Renders the unsupported-PHP notice for wp-admin or the delivery settings tab.
 	 *
-	 * @since [Unreleased]
+	 * @since 3.0.0
 	 *
 	 * @param bool $inline True when shown inside the Mailster delivery tab.
 	 * @return void
