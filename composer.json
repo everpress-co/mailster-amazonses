@@ -21,7 +21,7 @@
 		"prefix-namespaces": [
 			"@strauss"
 		],
-		"strauss": "@php -r \"if (is_file('vendor/bin/strauss')) { passthru(PHP_BINARY.' vendor/bin/strauss'); }\"",
+		"strauss": "@php -r \"if (is_file('vendor/bin/strauss')) { passthru(PHP_BINARY . ' vendor/bin/strauss', \\$status); exit(\\$status); }\"",
 		"check-cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs",
 		"fix-cs": "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
 	},
