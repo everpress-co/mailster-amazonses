@@ -21,7 +21,7 @@
 	"files": [
 		"views",
 		"classes",
-		"vendor",
+		"vendor-prefixed",
 		"assets",
 		"readme.txt",
 		"*.php"

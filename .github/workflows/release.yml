@@ -22,6 +22,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: composer
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
       - name: Verify package.json and required scripts
         run: |
           test -f package.json || (echo "package.json is required" && exit 1)
@@ -46,6 +56,9 @@ jobs:
 
       - name: Remove Markdown readme before production zip
         run: rm -f README.md
+
+      - name: Install production Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Read project name
         id: project

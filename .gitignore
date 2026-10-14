@@ -13,7 +13,10 @@ build
 
 # Dependency directories
 node_modules/
+
+# Composer / Strauss (rebuild: rm -rf vendor vendor-prefixed && composer install)
 vendor/
+vendor-prefixed/
 
 # Optional npm cache directory
 .npm
