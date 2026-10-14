@@ -90,6 +90,7 @@ For Mailster and this addon, see [mailster.co](https://mailster.co/?utm_campaign
 
 ### Unreleased
 
+- fixed: embedded images broken in Outlook/Thunderbird when using WEB API with a long From domain (Content-ID Q-encoding)
 - changed: AWS SDK for PHP (SesV2 and STS) is built via Composer and Strauss into a prefixed `Mailster\Aws3\` tree instead of a committed vendor copy
 - changed: requires PHP 8.1 or newer; compatible with PHP 8.4 and 8.5
 - improved: admin notice on PHP versions below 8.1 so Mailster delivery settings do not fatally error
