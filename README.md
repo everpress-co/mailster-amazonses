@@ -5,7 +5,7 @@ Tags: mailster, ses, amazon, newsletter, mailsteresp
 Requires at least: 6.0  
 Tested up to: 6.8  
 Stable tag: 2.16.0  
-Requires PHP: 7.4
+Requires PHP: 8.1
 License: GPLv2 or later  
 Author: EverPress  
 Author URI: <https://mailster.co>
@@ -87,6 +87,11 @@ For Mailster and this addon, see [mailster.co](https://mailster.co/?utm_campaign
 ![Option Interface.](https://ps.w.org/mailster-amazonses/assets/screenshot-1.png)
 
 ## Changelog
+
+### Unreleased
+
+- changed: AWS SDK for PHP (SesV2 and STS) is built via Composer and Strauss into a prefixed `Mailster\Aws3\` tree instead of a committed vendor copy
+- changed: requires PHP 8.1 or newer; compatible with PHP 8.4 and 8.5
 
 ### 2.16.0
 

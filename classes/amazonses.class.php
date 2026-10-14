@@ -264,12 +264,7 @@ class MailsterAmazonSES {
 				return new WP_Error( 'error', 'No Secret key' );
 			}
 
-			require_once $this->plugin_path . 'vendor/autoload.php';
-
-			// For PHP < 8.0 problem with the Guzzle lib.
-			if ( ! function_exists( 'idn_to_ascii' ) && ! defined( 'IDNA_DEFAULT' ) ) {
-				define( 'IDNA_DEFAULT', 0 );
-			}
+			require_once $this->plugin_path . 'vendor-prefixed/autoload.php';
 
 			$this->aws = new \Mailster\Aws3\Aws\SesV2\SesV2Client(
 				array(
