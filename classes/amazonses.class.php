@@ -177,6 +177,10 @@ class MailsterAmazonSES {
 
 			// Disable DKIM for the SES API path.
 			$mailobject->dkim = false;
+
+			// Avoid PHPMailer mail()-mode Q-encoding of long Content-IDs (RFC 2047).
+			// Delivery still uses the SES API; this only affects MIME construction.
+			$mailobject->mailer->Mailer = 'sendmail';
 		}
 	}
 
