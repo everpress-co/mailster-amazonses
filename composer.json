@@ -8,7 +8,7 @@
 	"require-dev": {
 		"wp-coding-standards/wpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-		"brianhenryie/strauss": "^0.19.3"
+		"brianhenryie/strauss": "^0.31"
 	},
 	"scripts": {
 		"pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices",
